@@ -8,7 +8,7 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// ===== KOLOR WG ŚREDNIEJ OCENY =====
+// ===== KOLOR WG ŚREDNIEJ =====
 const getColorByAvg = (avg) => {
   if (avg <= 1) return "#1b5e20";   // mocno zielony
   if (avg <= 2) return "#66bb6a";   // jasnozielony
@@ -64,7 +64,7 @@ export default function PieChart({ audits }) {
     };
   });
 
-  // ===== DANE =====
+  // ===== DATA =====
   const data = {
     labels,
     datasets: [
@@ -73,7 +73,7 @@ export default function PieChart({ audits }) {
         backgroundColor: metrics.map(m => m.color),
         borderColor: "#ffffff",
         borderWidth: 2,
-        hoverOffset: 18
+        hoverOffset: 16
       }
     ]
   };
@@ -92,8 +92,8 @@ export default function PieChart({ audits }) {
       meta.data.forEach((arc, i) => {
         const angle = (arc.startAngle + arc.endAngle) / 2;
 
-        // 🔥 MAKSYMALNY PROMIEŃ (WYPEŁNIA KAFEL)
-        const radius = arc.outerRadius * 0.82;
+        // 🚀 JESZCZE WIĘKSZY PROMIEŃ
+        const radius = arc.outerRadius * 0.90;
 
         const x = arc.x + Math.cos(angle) * radius;
         const y = arc.y + Math.sin(angle) * radius;
@@ -121,7 +121,7 @@ export default function PieChart({ audits }) {
     maintainAspectRatio: false,
     animation: false,
     layout: {
-      padding: 0 // 🔥 ZERO POWIETRZA
+      padding: 0 // 🔥 ZERO marginesów
     },
     plugins: {
       legend: {
