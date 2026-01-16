@@ -1,13 +1,43 @@
 import { useEffect, useState } from "react";
 import PieChart from "../components/PieChart";
 
+const DEPARTMENTS = [
+  "CC",
+  "HR",
+  "KADRY",
+  "KSIĘGOWOŚĆ",
+  "PH MATEUSZ HOWIS",
+  "PH BARTŁOMIEJ JĘDRZEJEC",
+  "PH SYLWESTER KAWALEC",
+  "PH JAN DYDUCH",
+  "PH ALEKSANDER ZAGAJEWSKI",
+  "PH DAWID KANIA",
+  "PH BARTOSZ SIEDLECKI",
+  "PH JAKUB HARASIMOWICZ",
+  "PRĄD DLA BIZNESU",
+  "SZKOLENIA",
+  "ADMINISTRATOR",
+  "KONTROLA JAKOŚCI CC",
+  "KONTROLA JAKOŚCI PH",
+  "MAGAZYNY",
+  "RETENCJA",
+  "TERMO",
+  "DZIAŁ DOTACJI I ZGŁOSZEŃ ZE",
+  "DZIAŁ OBSŁUGI KLIENTA",
+  "DZIAŁ ZAKUPÓW",
+  "FAKTURY",
+  "KREDYTY",
+  "MARKETING",
+  "PV"
+];
+
 export default function Home() {
   const [tab, setTab] = useState("form");
   const [audits, setAudits] = useState([]);
   const [form, setForm] = useState({
-    department: "Produkcja",
+    department: DEPARTMENTS[0],
     date: "",
-    score: 5,
+    score: 3,
     comment: ""
   });
 
@@ -30,9 +60,9 @@ export default function Home() {
     });
 
     setForm({
-      department: "Produkcja",
+      department: DEPARTMENTS[0],
       date: "",
-      score: 5,
+      score: 3,
       comment: ""
     });
 
@@ -73,11 +103,9 @@ export default function Home() {
               }
               style={styles.input}
             >
-              <option>Produkcja</option>
-              <option>HR</option>
-              <option>Finanse</option>
-              <option>IT</option>
-              <option>Logistyka</option>
+              {DEPARTMENTS.map(d => (
+                <option key={d}>{d}</option>
+              ))}
             </select>
 
             <input
@@ -89,14 +117,17 @@ export default function Home() {
               style={styles.input}
             />
 
-            {/* ===== SKALA ===== */}
+            {/* ===== POZIOM NIEZADOWOLENIA 1–5 ===== */}
             <div style={{ marginBottom: "20px" }}>
               <p style={{ fontWeight: "bold" }}>
-                Ocena: {form.score}
+                Poziom niezadowolenia: {form.score}
+              </p>
+              <p style={{ fontSize: "12px", opacity: 0.6 }}>
+                1 = bardzo dobrze · 5 = bardzo źle
               </p>
 
               <div style={styles.scoreRow}>
-                {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                {[1,2,3,4,5].map(n => (
                   <div
                     key={n}
                     onClick={() => setForm({ ...form, score: n })}
@@ -220,8 +251,8 @@ const styles = {
     justifyContent: "space-between"
   },
   scoreBox: {
-    width: "8%",
-    padding: "10px 0",
+    width: "18%",
+    padding: "12px 0",
     textAlign: "center",
     borderRadius: "8px",
     cursor: "pointer",
