@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
@@ -13,12 +12,15 @@ const COLORS = {
 };
 
 export default function PieChart({ audits }) {
-  const [selected, setSelected] = useState(null);
-
+  // grupowanie danych per dział
   const grouped = {};
+
   audits.forEach(a => {
     if (!grouped[a.department]) {
-      grouped[a.department] = { scores: [], dates: [] };
+      grouped[a.department] = {
+        scores: [],
+        dates: []
+      };
     }
     grouped[a.department].scores.push(a.score);
     grouped[a.department].dates.push(new Date(a.date));
@@ -34,7 +36,7 @@ export default function PieChart({ audits }) {
       {
         data: values,
         backgroundColor: colors,
-        borderColor: "#fff",
+        borderColor: "#ffffff",
         borderWidth: 2
       }
     ]
@@ -42,48 +44,52 @@ export default function PieChart({ audits }) {
 
   const options = {
     cutout: "65%",
-    onClick: (_, elements) => {
-      if (elements.length > 0) {
-        setSelected(labels[elements[0].index]);
-      }
-    },
     plugins: {
-      legend: { position: "top" }
+      legend: {
+        display: false
+      }
     }
   };
 
-  let center = "Kliknij dział";
-  if (selected) {
-    const scores = grouped[selected].scores;
-    const avg =
-      scores.reduce((a, b) => a + b, 0) / scores.length;
-
-    const lastDate = grouped[selected].dates
-      .sort((a, b) => b - a)[0]
-      .toISOString()
-      .split("T")[0];
-
-    center = `${selected}\nŚrednia: ${avg.toFixed(2)}\nOstatni: ${lastDate}`;
-  }
-
   return (
-    <div style={{ position: "relative" }}>
+    <>
+      {/* WYKRES */}
       <Doughnut data={data} options={options} />
 
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          textAlign: "center",
-          fontWeight: "bold",
-          whiteSpace: "pre-line",
-          pointerEvents: "none"
-        }}
-      >
-        {center}
+      {/* KAFELKI PER DZIAŁ */}
+      <div style={{ marginTop: "25px" }}>
+        {labels.map(dep => {
+          const scores = grouped[dep].scores;
+          const avg =
+            scores.reduce((a, b) => a + b, 0) / scores.length;
+
+          const lastDate = grouped[dep].dates
+            .sort((a, b) => b - a)[0]
+            .toISOString()
+            .split("T")[0];
+
+          return (
+            <div
+              key={dep}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto auto",
+                gap: "15px",
+                alignItems: "center",
+                padding: "12px 16px",
+                marginBottom: "10px",
+                borderRadius: "12px",
+                background: "#f5f5f5",
+                borderLeft: `6px solid ${COLORS[dep]}`
+              }}
+            >
+              <strong>{dep}</strong>
+              <span>Śr.: {avg.toFixed(2)}</span>
+              <span>{lastDate}</span>
+            </div>
+          );
+        })}
       </div>
-    </div>
+    </>
   );
 }
