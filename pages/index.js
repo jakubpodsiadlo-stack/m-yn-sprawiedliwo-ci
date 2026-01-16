@@ -15,7 +15,7 @@ const DEPARTMENTS = [
   "KREDYTY","MARKETING","PV"
 ];
 
-const USERS = ["PRZEMYSŁAW DERDAŚ"]; // Lista uprawnionych loginów
+const USERS = ["PRZEMYSŁAW DERDAŚ"];
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -55,14 +55,7 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form)
     });
-
-    setForm({
-      department: DEPARTMENTS[0],
-      date: today(),
-      score: 3,
-      comment: ""
-    });
-
+    setForm({ department: DEPARTMENTS[0], date: today(), score: 3, comment: "" });
     load();
   };
 
@@ -83,6 +76,19 @@ export default function Home() {
   if (!isLoggedIn) {
     return (
       <div style={styles.page}>
+        {/* DUŻY BŁĘKITNY MŁYN */}
+        <div style={styles.logoContainer}>
+          <svg viewBox="0 0 24 24" style={styles.millIcon} fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M12 12V3L19 7L12 12Z" fill="#add8e6" />
+            <path d="M12 12H21L17 19L12 12Z" fill="#87ceeb" />
+            <path d="M12 12V21L5 17L12 12Z" fill="#add8e6" />
+            <path d="M12 12H3L7 5L12 12Z" fill="#87ceeb" />
+            <circle cx="12" cy="12" r="1.5" fill="#1e3c72" />
+            <path d="M8 22H16M12 21V12" stroke="#fff" strokeLinecap="round" />
+          </svg>
+          <h1 style={{ color: '#add8e6', marginTop: '10px', fontSize: '24px', letterSpacing: '2px' }}>BŁĘKITNY MŁYN</h1>
+        </div>
+
         <div style={styles.loginCard}>
           <h2 style={styles.title}>LOGOWANIE</h2>
           <form onSubmit={handleLogin}>
@@ -275,6 +281,8 @@ export default function Home() {
 
 const styles = {
   page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"},
+  logoContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '30px' },
+  millIcon: { width: '120px', height: '120px', filter: 'drop-shadow(0 0 10px rgba(173, 216, 230, 0.5))' },
   loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "18px", width: "100%", maxWidth: "400px", boxShadow: "0 10px 25px rgba(0,0,0,0.3)"},
   label: {display: "block", marginBottom: "8px", fontWeight: "bold", color: "#1e3c72"},
   tabs:{display:"flex",justifyContent:"space-between",width:"100%",maxWidth:"900px",margin:"0 auto 30px"},
