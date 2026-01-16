@@ -18,7 +18,7 @@ const DEPARTMENTS = [
   "PH JAKUB HARASIMOWICZ",
   "PRĄD DLA BIZNESU",
   "SZKOLENIA",
-  "ADMINISTRATOR",
+  "ADMINISTRACJA",
   "KONTROLA JAKOŚCI CC",
   "KONTROLA JAKOŚCI PH",
   "MAGAZYNY",
@@ -155,17 +155,21 @@ export default function Home() {
           </div>
         )}
 
-        {tab === "chart" && (
-          <div style={styles.card}>
-            <div style={{ width: "100%", height: "85vh", maxHeight: "900px" }}>
-              <PieChart audits={audits} />
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+      {tab === "chart" && (
+  <div
+    style={{
+      background: "#fff",
+      borderRadius: "18px",
+      padding: "20px",
+      width: "1100px",      // ⬅ SZEROKOŚĆ PROSTOKĄTA
+      height: "750px",      // ⬅ WYSOKOŚĆ PROSTOKĄTA
+      margin: "0 auto"
+    }}
+  >
+    <PieChart audits={audits} />
+  </div>
+)}
+
 
 const styles = {
   page: {
@@ -218,7 +222,6 @@ const styles = {
     letterSpacing: "2px"
   },
 
-  /* 🔥 KLUCZOWE POPRAWKI */
   input: {
     width: "100%",
     height: "52px",
