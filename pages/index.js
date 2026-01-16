@@ -79,7 +79,6 @@ export default function Home() {
         >
           📝 WPROWADŹ AUDYT
         </button>
-
         <button
           onClick={() => setTab("chart")}
           style={tab === "chart" ? styles.activeTab : styles.tab}
@@ -89,7 +88,6 @@ export default function Home() {
       </div>
 
       <div style={styles.content}>
-        {/* FORM */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -115,8 +113,8 @@ export default function Home() {
               style={styles.input}
             />
 
-            <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontWeight: "bold" }}>
+            <div style={{ marginBottom: "24px" }}>
+              <p style={{ fontWeight: "bold", marginBottom: "4px" }}>
                 Poziom niezadowolenia: {form.score}
               </p>
               <p style={{ fontSize: "12px", opacity: 0.6 }}>
@@ -157,16 +155,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* WIZUALIZACJA */}
         {tab === "chart" && (
           <div style={styles.card}>
-            <div
-              style={{
-                width: "100%",
-                height: "85vh",
-                maxHeight: "900px"
-              }}
-            >
+            <div style={{ width: "100%", height: "85vh", maxHeight: "900px" }}>
               <PieChart audits={audits} />
             </div>
           </div>
@@ -195,9 +186,9 @@ const styles = {
     fontSize: "18px",
     borderRadius: "14px",
     border: "none",
-    cursor: "pointer",
     background: "rgba(255,255,255,0.25)",
-    color: "#fff"
+    color: "#fff",
+    cursor: "pointer"
   },
   activeTab: {
     width: "48%",
@@ -205,65 +196,81 @@ const styles = {
     fontSize: "18px",
     borderRadius: "14px",
     border: "none",
-    cursor: "pointer",
-    background: "#ffffff",
+    background: "#fff",
     color: "#1e3c72",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    cursor: "pointer"
   },
   content: {
     maxWidth: "1200px",
     margin: "0 auto"
   },
   card: {
-    background: "#ffffff",
+    background: "#fff",
     color: "#333",
     borderRadius: "18px",
-    padding: "12px"
+    padding: "30px"
   },
   title: {
     textAlign: "center",
-    marginBottom: "20px",
-    color: "#1e3c72"
+    marginBottom: "24px",
+    color: "#1e3c72",
+    letterSpacing: "2px"
   },
+
+  /* 🔥 KLUCZOWE POPRAWKI */
   input: {
     width: "100%",
-    height: "48px",
-    padding: "0 12px",
-    marginBottom: "15px",
-    borderRadius: "8px",
-    border: "1px solid #ccc"
+    height: "52px",
+    padding: "0 14px",
+    marginBottom: "16px",
+    borderRadius: "10px",
+    border: "1px solid #ccc",
+    fontSize: "15px",
+    lineHeight: "52px",
+    boxSizing: "border-box",
+    appearance: "none",
+    WebkitAppearance: "none",
+    MozAppearance: "none"
   },
+
   textarea: {
     width: "100%",
-    height: "90px",
-    padding: "12px",
-    marginBottom: "15px",
-    borderRadius: "8px",
+    height: "110px",
+    padding: "14px",
+    marginBottom: "20px",
+    borderRadius: "10px",
     border: "1px solid #ccc",
-    resize: "none"
+    fontSize: "15px",
+    resize: "none",
+    boxSizing: "border-box"
   },
+
   submit: {
     width: "100%",
-    height: "52px",
-    borderRadius: "12px",
+    height: "56px",
+    borderRadius: "14px",
     border: "none",
     background: "#1e3c72",
     color: "#fff",
     fontSize: "16px",
     cursor: "pointer"
   },
+
   scoreRow: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    marginTop: "10px"
   },
   scoreBox: {
     width: "18%",
-    height: "48px",
+    height: "52px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: "8px",
+    borderRadius: "10px",
     cursor: "pointer",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    userSelect: "none"
   }
 };
