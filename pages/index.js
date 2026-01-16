@@ -52,6 +52,21 @@ export default function Home() {
     load();
   };
 
+  // Pomocnicza funkcja kolorów dla ocen (wykorzystywana w tabeli i komentarzach)
+  const getScoreColor = (score) => {
+    if (score >= 4) return "#ffcccc"; // Czerwony (wysokie niezadowolenie)
+    if (score === 3) return "#fff3cd"; // Żółty
+    return "#d4edda";                // Zielony
+  };
+
+  // Pomocnicza funkcja kolorów dla dni (tabela po lewej)
+  const getDaysColor = (days) => {
+    if (days === null) return "transparent";
+    if (days > 14) return "#ffcccc";
+    if (days >= 5) return "#fff3cd";
+    return "#d4edda";
+  };
+
   return (
     <div style={styles.page}>
       {/* ZAKŁADKI */}
@@ -141,13 +156,6 @@ export default function Home() {
                         if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
                       });
 
-                      const getColor = (days) => {
-                        if (days === null) return "transparent";
-                        if (days > 14) return "#ffcccc";
-                        if (days >= 5) return "#fff3cd";
-                        return "#d4edda";
-                      };
-
                       return Object.entries(grouped)
                         .map(([dep, d]) => {
                           const last = d.dates.sort((a,b)=>b-a)[0];
@@ -161,7 +169,7 @@ export default function Home() {
                             <td style={{ padding: "8px 0" }}>{r.dep}</td>
                             <td align="right" style={{ padding: "8px 0" }}>
                               <span style={{
-                                background: getColor(r.daysAgo),
+                                background: getDaysColor(r.daysAgo),
                                 padding: "2px 8px",
                                 borderRadius: "10px",
                                 fontWeight: "bold",
@@ -187,9 +195,9 @@ export default function Home() {
               <PieChart audits={audits} />
             </div>
 
-            {/* PRAWA STRONA – KOMENTARZE (ZMODYFIKOWANA) */}
+            {/* PRAWA STRONA – KOMENTARZE */}
             <div style={styles.sideCard}>
-              <h3 style={styles.sideTitle}>Szczegóły audytów</h3>
+              <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>KOMENTARZE</h3>
 
               <select
                 style={styles.input}
@@ -208,9 +216,18 @@ export default function Home() {
                   .sort((a, b) => new Date(b.date) - new Date(a.date))
                   .map((audit, idx) => (
                     <div key={idx} style={styles.historyItem}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", fontSize: "12px", opacity: 0.7 }}>
-                        <span>📅 {audit.date}</span>
-                        <span>⭐ Ocena: {audit.score}</span>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "12px", alignItems: "center" }}>
+                        <span style={{ opacity: 0.7 }}>📅 {audit.date}</span>
+                        <span style={{
+                          background: getScoreColor(audit.score),
+                          padding: "2px 10px",
+                          borderRadius: "10px",
+                          fontWeight: "bold",
+                          color: "#333",
+                          fontSize: "11px"
+                        }}>
+                          OCENA: {audit.score}
+                        </span>
                       </div>
                       <div style={styles.commentBox}>
                         {audit.comment || <i style={{ opacity: 0.5 }}>Brak komentarza</i>}
