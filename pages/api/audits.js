@@ -1,13 +1,24 @@
-let audits = [];
+import { supabase } from "../../lib/supabase";
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === "GET") {
-    return res.status(200).json(audits);
+    const { data, error } = await supabase
+      .from("audits")
+      .select("*")
+      .order("date", { ascending: true });
+
+    if (error) return res.status(500).json(error);
+    return res.status(200).json(data);
   }
 
   if (req.method === "POST") {
-    const audit = req.body;
-    audits.push(audit);
+    const { department, date, score, comment } = req.body;
+
+    const { error } = await supabase.from("audits").insert([
+      { department, date, score, comment }
+    ]);
+
+    if (error) return res.status(500).json(error);
     return res.status(201).json({ success: true });
   }
 
