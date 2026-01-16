@@ -18,7 +18,7 @@ const DEPARTMENTS = [
   "PH JAKUB HARASIMOWICZ",
   "PRĄD DLA BIZNESU",
   "SZKOLENIA",
-  "ADMINISTRACJA",
+  "ADMINISTRATOR",
   "KONTROLA JAKOŚCI CC",
   "KONTROLA JAKOŚCI PH",
   "MAGAZYNY",
@@ -43,6 +43,7 @@ export default function Home() {
     comment: ""
   });
 
+  // ===== LOAD AUDITS =====
   const load = async () => {
     const res = await fetch("/api/audits");
     setAudits(await res.json());
@@ -52,6 +53,7 @@ export default function Home() {
     load();
   }, []);
 
+  // ===== SUBMIT =====
   const submit = async () => {
     await fetch("/api/audits", {
       method: "POST",
@@ -71,7 +73,7 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      {/* ZAKŁADKI */}
+      {/* ===== ZAKŁADKI ===== */}
       <div style={styles.tabs}>
         <button
           onClick={() => setTab("form")}
@@ -88,6 +90,7 @@ export default function Home() {
       </div>
 
       <div style={styles.content}>
+        {/* ===== FORM ===== */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -155,21 +158,28 @@ export default function Home() {
           </div>
         )}
 
-      {tab === "chart" && (
-  <div
-    style={{
-      background: "#fff",
-      borderRadius: "18px",
-      padding: "20px",
-      width: "1100px",      // ⬅ SZEROKOŚĆ PROSTOKĄTA
-      height: "750px",      // ⬅ WYSOKOŚĆ PROSTOKĄTA
-      margin: "0 auto"
-    }}
-  >
-    <PieChart audits={audits} />
-  </div>
-)}
+        {/* ===== WIZUALIZACJA (PROSTOKĄT) ===== */}
+        {tab === "chart" && (
+          <div
+            style={{
+              background: "#ffffff",
+              color: "#333",
+              borderRadius: "18px",
+              padding: "20px",
+              width: "1200px",   // ⬅ ZMIENIASZ SZEROKOŚĆ
+              height: "800px",   // ⬅ ZMIENIASZ WYSOKOŚĆ
+              margin: "0 auto"
+            }}
+          >
+            <PieChart audits={audits} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
+/* ===== STYLES ===== */
 
 const styles = {
   page: {
@@ -206,7 +216,7 @@ const styles = {
     cursor: "pointer"
   },
   content: {
-    maxWidth: "1200px",
+    maxWidth: "1400px",
     margin: "0 auto"
   },
   card: {
@@ -221,7 +231,6 @@ const styles = {
     color: "#1e3c72",
     letterSpacing: "2px"
   },
-
   input: {
     width: "100%",
     height: "52px",
@@ -230,13 +239,8 @@ const styles = {
     borderRadius: "10px",
     border: "1px solid #ccc",
     fontSize: "15px",
-    lineHeight: "52px",
-    boxSizing: "border-box",
-    appearance: "none",
-    WebkitAppearance: "none",
-    MozAppearance: "none"
+    boxSizing: "border-box"
   },
-
   textarea: {
     width: "100%",
     height: "110px",
@@ -248,7 +252,6 @@ const styles = {
     resize: "none",
     boxSizing: "border-box"
   },
-
   submit: {
     width: "100%",
     height: "56px",
@@ -259,7 +262,6 @@ const styles = {
     fontSize: "16px",
     cursor: "pointer"
   },
-
   scoreRow: {
     display: "flex",
     justifyContent: "space-between",
