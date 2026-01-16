@@ -8,7 +8,6 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// ===== KOLOR WG ŚREDNIEJ =====
 const getColorByAvg = (avg) => {
   if (avg <= 1) return "#1b5e20";
   if (avg <= 2) return "#66bb6a";
@@ -22,37 +21,25 @@ export default function PieChart({ audits }) {
 
   audits.forEach(a => {
     if (!grouped[a.department]) {
-      grouped[a.department] = {
-        count: 0,
-        dates: [],
-        scores: []
-      };
+      grouped[a.department] = { count: 0, dates: [], scores: [] };
     }
-
-    grouped[a.department].count += 1;
+    grouped[a.department].count++;
     if (a.date) grouped[a.department].dates.push(new Date(a.date));
-    if (typeof a.score === "number" && !isNaN(a.score)) {
-      grouped[a.department].scores.push(a.score);
-    }
+    grouped[a.department].scores.push(a.score);
   });
 
   const labels = Object.keys(grouped);
 
   const metrics = labels.map(dep => {
     const dates = grouped[dep].dates.sort((a, b) => b - a);
-    const scores = grouped[dep].scores;
-
     const avg =
-      scores.length > 0
-        ? scores.reduce((a, b) => a + b, 0) / scores.length
-        : 5;
+      grouped[dep].scores.reduce((a, b) => a + b, 0) /
+      grouped[dep].scores.length;
 
     return {
       name: dep,
       count: grouped[dep].count,
-      lastDate: dates.length
-        ? dates[0].toISOString().split("T")[0]
-        : "",
+      lastDate: dates[0]?.toISOString().split("T")[0] ?? "",
       color: getColorByAvg(avg)
     };
   });
@@ -69,9 +56,9 @@ export default function PieChart({ audits }) {
     ]
   };
 
-  // ===== 3 WYSOKOŚCI TEKSTU =====
-  const textPlugin = {
-    id: "tripleHeightText",
+  // ===== RADIALNY TEKST =====
+  const radialTextPlugin = {
+    id: "radialText",
     afterDraw(chart) {
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
@@ -82,35 +69,34 @@ export default function PieChart({ audits }) {
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
+        const angleMid = (arc.startAngle + arc.endAngle) / 2;
         const angleSize = arc.endAngle - arc.startAngle;
-        const angle = (arc.startAngle + arc.endAngle) / 2;
 
-        // ❌ za mały segment – nie rysujemy
-        if (angleSize < 0.12) return;
+        if (angleSize < 0.15) return; // za mały kafelek
 
-        // 🔀 3 poziomy promienia (powtarzalne)
-        const radiusLevels = [0.50, 0.65, 0.90];
-        const r = arc.outerRadius * radiusLevels[i % 3];
+        const r = arc.outerRadius * 0.78;
+        const x = arc.x + Math.cos(angleMid) * r;
+        const y = arc.y + Math.sin(angleMid) * r;
 
-        const x = arc.x + Math.cos(angle) * r;
-        const y = arc.y + Math.sin(angle) * r;
-
-        // 🟡 średni segment – tylko nazwa
-        if (angleSize < 0.22) {
-          ctx.font = "bold 10px sans-serif";
-          ctx.fillText(metrics[i].name, x, y);
-          return;
+        let rotation = angleMid;
+        if (rotation > Math.PI / 2 && rotation < (3 * Math.PI) / 2) {
+          rotation += Math.PI; // odwrócenie, żeby nie było do góry nogami
         }
 
-        // 🟢 większy segment – pełne info
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+
         ctx.font = "bold 11px sans-serif";
-        ctx.fillText(metrics[i].name, x, y - 12);
+        ctx.fillText(metrics[i].name, 0, -14);
 
         ctx.font = "10px sans-serif";
-        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
+        ctx.fillText(`Audytów: ${metrics[i].count}`, 0, 0);
 
         ctx.font = "9.5px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 12);
+        ctx.fillText(metrics[i].lastDate, 0, 14);
+
+        ctx.restore();
       });
 
       ctx.restore();
@@ -122,7 +108,6 @@ export default function PieChart({ audits }) {
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
-    layout: { padding: 0 },
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -144,7 +129,7 @@ export default function PieChart({ audits }) {
     <Doughnut
       data={data}
       options={options}
-      plugins={[textPlugin]}
+      plugins={[radialTextPlugin]}
     />
   );
 }
