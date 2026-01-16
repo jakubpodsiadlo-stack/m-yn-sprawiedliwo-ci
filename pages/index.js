@@ -8,7 +8,7 @@ const DEPARTMENTS = [
   "PH MATEUSZ HOWIS","PH BARTŁOMIEJ JĘDRZEJEC","PH SYLWESTER KAWALEC",
   "PH JAN DYDUCH","PH ALEKSANDER ZAGAJEWSKI","PH DAWID KANIA",
   "PH BARTOSZ SIEDLECKI","PH JAKUB HARASIMOWICZ",
-  "PRĄD DLA BIZNESU","SZKOLENIA","ADMINISTRATOR",
+  "PRĄD DLA BIZNESU","SZKOLENIA","ADMINISTRACJA", // Zmieniono z ADMINISTRATOR
   "KONTROLA JAKOŚCI CC","KONTROLA JAKOŚCI PH","MAGAZYNY",
   "RETENCJA","TERMO","DZIAŁ DOTACJI I ZGŁOSZEŃ ZE",
   "DZIAŁ OBSŁUGI KLIENTA","DZIAŁ ZAKUPÓW","FAKTURY",
@@ -76,10 +76,8 @@ export default function Home() {
   if (!isLoggedIn) {
     return (
       <div style={styles.page}>
-        {/* WIĘKSZY LOGOTYP */}
         <div style={styles.logoContainer}>
           <svg viewBox="0 0 100 100" style={styles.millIcon}>
-             {/* Gruby biały kontur zewnętrzny */}
              <path 
                d="M50 5 L90 45 L85 90 L15 90 L10 45 Z" 
                fill="none" 
@@ -87,19 +85,15 @@ export default function Home() {
                strokeWidth="5" 
                strokeLinejoin="round" 
              />
-             {/* Błękitna bryła */}
              <path 
                d="M50 5 L90 45 L85 90 L15 90 L10 45 Z" 
                fill="#4fc3f7" 
              />
-             {/* Skrzydła X */}
              <g stroke="white" strokeWidth="5" strokeLinecap="round">
                <line x1="20" y1="20" x2="80" y2="70" />
                <line x1="80" y1="20" x2="20" y2="70" />
              </g>
-             {/* Środek skrzydeł */}
              <circle cx="50" cy="45" r="6" fill="#4fc3f7" stroke="white" strokeWidth="3" />
-             {/* Drzwi */}
              <path d="M40 90 V72 Q50 64 60 72 V90" fill="#01579b" />
           </svg>
           <h1 style={styles.mainTitle}>MŁYN SPRAWIEDLIWOŚCI</h1>
