@@ -79,7 +79,7 @@ export default function Home() {
 
       {/* CONTENT */}
       <div style={styles.content}>
-        {/* FORM */}
+        {/* FORM - TERAZ DOPASOWANY I WYŚRODKOWANY */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -99,7 +99,7 @@ export default function Home() {
               style={styles.input}
             />
 
-            <p style={{ fontWeight: "bold" }}>Poziom niezadowolenia: {form.score}</p>
+            <p style={{ fontWeight: "bold", color: "#1e3c72" }}>Poziom niezadowolenia: {form.score}</p>
 
             <div style={styles.scoreRow}>
               {[1,2,3,4,5].map(n => (
@@ -131,7 +131,7 @@ export default function Home() {
         {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
-            {/* LEWA TABELA (ZMODYFIKOWANA) */}
+            {/* LEWA TABELA */}
             <div style={styles.sideCard}>
               <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>DZIAŁY</h3>
               <div style={{ overflowY: "auto", height: "calc(100% - 60px)" }}>
@@ -243,25 +243,33 @@ export default function Home() {
   );
 }
 
-/* ===== STYLES ===== */
+/* ===== STYLES - KLUCZOWE ZMIANY W 'card' ===== */
 
 const styles = {
   page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff"},
   tabs:{display:"flex",justifyContent:"space-between",maxWidth:"900px",margin:"0 auto 30px"},
-  tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff"},
-  activeTab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"#fff",color:"#1e3c72",fontWeight:"bold"},
-  content:{margin:"0 auto"},
-  card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px"},
-  title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
-  input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"16px",borderRadius:"10px",border:"1px solid #ccc"},
-  textarea:{width:"100%",height:"110px",padding:"14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc"},
-  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff",cursor: "pointer"},
-  scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
-  scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
+  tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff", cursor:"pointer"},
+  activeTab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"#fff",color:"#1e3c72",fontWeight:"bold", cursor:"pointer"},
+  content:{maxWidth:"1800px", margin:"0 auto"},
+  card:{
+    background:"#fff",
+    color:"#333",
+    borderRadius:"18px",
+    padding:"40px",
+    maxWidth:"800px", // Ograniczona szerokość formularza
+    margin:"40px auto", // Wyśrodkowanie w pionie i poziomie
+    boxShadow:"0 15px 35px rgba(0,0,0,0.2)"
+  },
+  title:{textAlign:"center", marginBottom:"30px", color:"#1e3c72", fontSize:"28px", fontWeight:"bold"},
+  input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc", fontSize:"16px"},
+  textarea:{width:"100%",height:"150px",padding:"14px",marginBottom:"24px",borderRadius:"10px",border:"1px solid #ccc", fontSize:"16px", resize:"none"},
+  submit:{width:"100%",height:"60px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff",fontSize:"18px", fontWeight:"bold", cursor: "pointer", transition:"0.2s"},
+  scoreRow:{display:"flex",justifyContent:"space-between",margin:"15px 0 25px"},
+  scoreBox:{width:"18%",height:"56px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"12px",cursor:"pointer",fontWeight:"bold", fontSize:"18px"},
   dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
-  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333", display: "flex", flexDirection: "column"},
-  centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px"},
-  sideTitle:{color:"#1e3c72",marginBottom:"16px"},
+  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333", display: "flex", flexDirection: "column", boxShadow:"0 10px 25px rgba(0,0,0,0.1)"},
+  centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px", boxShadow:"0 10px 25px rgba(0,0,0,0.1)"},
+  sideTitle:{color:"#1e3c72",marginBottom:"16px", fontWeight:"bold"},
   scrollArea: {flex: 1, overflowY: "auto", paddingRight: "10px"},
   historyItem: {marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px"},
   commentBox:{
