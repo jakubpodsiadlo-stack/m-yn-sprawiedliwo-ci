@@ -160,20 +160,125 @@ export default function Home() {
 
         {/* ===== WIZUALIZACJA (PROSTOKĄT) ===== */}
         {tab === "chart" && (
-          <div
-            style={{
-              background: "#ffffff",
-              color: "#333",
-              borderRadius: "18px",
-              padding: "20px",
-              width: "800px",   // ⬅ ZMIENIASZ SZEROKOŚĆ
-              height: "800px",   // ⬅ ZMIENIASZ WYSOKOŚĆ
-              margin: "0 auto"
-            }}
-          >
-            <PieChart audits={audits} />
-          </div>
-        )}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "360px 1fr 360px",
+      gap: "24px",
+      maxWidth: "1600px",
+      margin: "0 auto"
+    }}
+  >
+    {/* ===== LEWY PROSTOKĄT – TABELA ===== */}
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "18px",
+        padding: "16px",
+        height: "800px",
+        overflowY: "auto"
+      }}
+    >
+      <h3 style={{ color: "#1e3c72", marginBottom: "12px" }}>
+        Działy
+      </h3>
+
+      <table style={{ width: "100%", fontSize: "13px" }}>
+        <thead>
+          <tr>
+            <th align="left">Dział</th>
+            <th align="right">Dni</th>
+            <th align="right">Śr.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(() => {
+            const today = new Date();
+            const grouped = {};
+
+            audits.forEach(a => {
+              if (!grouped[a.department]) {
+                grouped[a.department] = { dates: [], scores: [] };
+              }
+              if (a.date) grouped[a.department].dates.push(new Date(a.date));
+              if (typeof a.score === "number")
+                grouped[a.department].scores.push(a.score);
+            });
+
+            return Object.entries(grouped)
+              .map(([dep, d]) => {
+                const last = d.dates.sort((a, b) => b - a)[0];
+                const daysAgo = last
+                  ? Math.floor((today - last) / (1000 * 60 * 60 * 24))
+                  : null;
+
+                const avg =
+                  d.scores.length
+                    ? (
+                        d.scores.reduce((a, b) => a + b, 0) /
+                        d.scores.length
+                      ).toFixed(2)
+                    : "-";
+
+                return { dep, daysAgo, avg };
+              })
+              .sort((a, b) => (b.daysAgo ?? -1) - (a.daysAgo ?? -1))
+              .map(r => (
+                <tr key={r.dep}>
+                  <td>{r.dep}</td>
+                  <td align="right">{r.daysAgo ?? "—"}</td>
+                  <td align="right">{r.avg}</td>
+                </tr>
+              ));
+          })()}
+        </tbody>
+      </table>
+    </div>
+
+    {/* ===== ŚRODEK – TWOJE KOŁO (BEZ ZMIAN) ===== */}
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "18px",
+        padding: "20px",
+        height: "800px"
+      }}
+    >
+      <PieChart audits={audits} />
+    </div>
+
+    {/* ===== PRAWY PROSTOKĄT – SZCZEGÓŁY ===== */}
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "18px",
+        padding: "16px",
+        height: "800px"
+      }}
+    >
+      <h3 style={{ color: "#1e3c72", marginBottom: "12px" }}>
+        Szczegóły audytu
+      </h3>
+
+      <select
+        style={{
+          width: "100%",
+          height: "40px",
+          marginBottom: "16px"
+        }}
+      >
+        {[...new Set(audits.map(a => a.department))].map(d => (
+          <option key={d}>{d}</option>
+        ))}
+      </select>
+
+      <p style={{ opacity: 0.6 }}>
+        (tu w kolejnym kroku podepniemy komentarz dnia)
+      </p>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
