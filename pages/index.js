@@ -8,7 +8,7 @@ const DEPARTMENTS = [
   "PH MATEUSZ HOWIS","PH BARTŁOMIEJ JĘDRZEJEC","PH SYLWESTER KAWALEC",
   "PH JAN DYDUCH","PH ALEKSANDER ZAGAJEWSKI","PH DAWID KANIA",
   "PH BARTOSZ SIEDLECKI","PH JAKUB HARASIMOWICZ",
-  "PRĄD DLA BIZNESU","SZKOLENIA","ADMINISTRACJA", // Zmieniono z ADMINISTRATOR
+  "PRĄD DLA BIZNESU","SZKOLENIA","ADMINISTRACJA",
   "KONTROLA JAKOŚCI CC","KONTROLA JAKOŚCI PH","MAGAZYNY",
   "RETENCJA","TERMO","DZIAŁ DOTACJI I ZGŁOSZEŃ ZE",
   "DZIAŁ OBSŁUGI KLIENTA","DZIAŁ ZAKUPÓW","FAKTURY",
@@ -72,29 +72,53 @@ export default function Home() {
     return "#d4edda";
   };
 
-  // EKRAN LOGOWANIA
   if (!isLoggedIn) {
     return (
       <div style={styles.page}>
+        {/* NOWA, ODŚWIEŻONA GRAFIKA MŁYNA */}
         <div style={styles.logoContainer}>
           <svg viewBox="0 0 100 100" style={styles.millIcon}>
-             <path 
-               d="M50 5 L90 45 L85 90 L15 90 L10 45 Z" 
-               fill="none" 
-               stroke="white" 
-               strokeWidth="5" 
-               strokeLinejoin="round" 
-             />
-             <path 
-               d="M50 5 L90 45 L85 90 L15 90 L10 45 Z" 
-               fill="#4fc3f7" 
-             />
-             <g stroke="white" strokeWidth="5" strokeLinecap="round">
-               <line x1="20" y1="20" x2="80" y2="70" />
-               <line x1="80" y1="20" x2="20" y2="70" />
-             </g>
-             <circle cx="50" cy="45" r="6" fill="#4fc3f7" stroke="white" strokeWidth="3" />
-             <path d="M40 90 V72 Q50 64 60 72 V90" fill="#01579b" />
+            {/* Zewnętrzna poświata budynku */}
+            <path 
+              d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" 
+              fill="rgba(79, 195, 247, 0.2)" 
+              filter="blur(4px)"
+            />
+            {/* Biały gruby kontur budynku */}
+            <path 
+              d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="4" 
+              strokeLinejoin="round" 
+            />
+            {/* Główna bryła młyna (gradient błękitu) */}
+            <path 
+              d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" 
+              fill="#4fc3f7" 
+            />
+            
+            {/* Epickie Skrzydła z detalami */}
+            <g stroke="white" strokeWidth="5" strokeLinecap="round">
+              {/* Skrzydło 1 */}
+              <line x1="50" y1="45" x2="85" y2="15" />
+              <path d="M50 45 L85 15 L75 5 L40 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              {/* Skrzydło 2 */}
+              <line x1="50" y1="45" x2="85" y2="75" />
+              <path d="M50 45 L85 75 L95 65 L60 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              {/* Skrzydło 3 */}
+              <line x1="50" y1="45" x2="15" y2="75" />
+              <path d="M50 45 L15 75 L5 65 L40 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              {/* Skrzydło 4 */}
+              <line x1="50" y1="45" x2="15" y2="15" />
+              <path d="M50 45 L15 15 L25 5 L60 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+            </g>
+
+            {/* Centralny rdzeń skrzydeł */}
+            <circle cx="50" cy="45" r="7" fill="#01579b" stroke="white" strokeWidth="2" />
+            
+            {/* Brama młyna */}
+            <path d="M42 92 V75 Q50 68 58 75 V92" fill="#01579b" stroke="white" strokeWidth="1" />
           </svg>
           <h1 style={styles.mainTitle}>MŁYN SPRAWIEDLIWOŚCI</h1>
         </div>
@@ -290,10 +314,10 @@ export default function Home() {
 
 const styles = {
   page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"},
-  logoContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' },
-  millIcon: { width: '220px', height: '220px' },
-  mainTitle: { color: 'white', marginTop: '15px', fontSize: '32px', fontWeight: '900', letterSpacing: '4px', textShadow: '2px 2px 10px rgba(0,0,0,0.5)' },
-  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "24px", width: "100%", maxWidth: "420px", boxShadow: "0 20px 50px rgba(0,0,0,0.5)"},
+  logoContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px' },
+  millIcon: { width: '240px', height: '240px', filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.3))' },
+  mainTitle: { color: 'white', marginTop: '10px', fontSize: '36px', fontWeight: '900', letterSpacing: '5px', textShadow: '3px 3px 15px rgba(0,0,0,0.6)' },
+  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "24px", width: "100%", maxWidth: "440px", boxShadow: "0 25px 60px rgba(0,0,0,0.6)"},
   label: {display: "block", marginBottom: "8px", fontWeight: "bold", color: "#1e3c72"},
   tabs:{display:"flex",justifyContent:"space-between",width:"100%",maxWidth:"900px",margin:"0 auto 30px"},
   tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff", cursor:"pointer"},
