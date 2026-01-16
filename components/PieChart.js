@@ -1,10 +1,6 @@
+import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend
-} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -17,7 +13,8 @@ const COLORS = {
 };
 
 export default function PieChart({ audits }) {
-  // ===== GRUPOWANIE =====
+  const [selected, setSelected] = useState(null);
+
   const grouped = {};
   audits.forEach(a => {
     if (!grouped[a.department]) {
@@ -31,24 +28,6 @@ export default function PieChart({ audits }) {
   const values = labels.map(l => grouped[l].scores.length);
   const colors = labels.map(l => COLORS[l] || "#999");
 
-  const metrics = labels.map(dep => {
-    const scores = grouped[dep].scores;
-    const avg =
-      scores.reduce((a, b) => a + b, 0) / scores.length;
-
-    const lastDate = grouped[dep].dates
-      .sort((a, b) => b - a)[0]
-      .toISOString()
-      .split("T")[0];
-
-    return {
-      name: dep,
-      avg: avg.toFixed(1),
-      date: lastDate
-    };
-  });
-
-  // ===== WYKRES =====
   const data = {
     labels,
     datasets: [
@@ -56,72 +35,55 @@ export default function PieChart({ audits }) {
         data: values,
         backgroundColor: colors,
         borderColor: "#fff",
-        borderWidth: 2,
-        hoverOffset: 14
+        borderWidth: 2
       }
     ]
   };
 
-  // ===== PLUGIN TEKSTU =====
-  const segmentTextPlugin = {
-    id: "segmentText",
-    afterDraw(chart) {
-      const { ctx } = chart;
-      const meta = chart.getDatasetMeta(0);
-      const active =
-        chart.tooltip?.dataPoints?.[0]?.dataIndex;
-
-      ctx.save();
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      meta.data.forEach((arc, i) => {
-        const angle =
-          (arc.startAngle + arc.endAngle) / 2;
-        const radius =
-          (arc.outerRadius + arc.innerRadius) / 2;
-
-        const x =
-          arc.x + Math.cos(angle) * radius;
-        const y =
-          arc.y + Math.sin(angle) * radius;
-
-        const isActive = i === active;
-
-        // 🔥 WIĘKSZE FONTY + WIĘCEJ ODSTĘPU
-        const titleSize = isActive ? 18 : 14;
-        const textSize = isActive ? 14 : 12;
-        const spacing = isActive ? 18 : 14;
-
-        ctx.fillStyle = "#fff";
-
-        ctx.font = `bold ${titleSize}px sans-serif`;
-        ctx.fillText(metrics[i].name, x, y - spacing);
-
-        ctx.font = `bold ${textSize}px sans-serif`;
-        ctx.fillText(`Śr: ${metrics[i].avg}`, x, y);
-
-        ctx.font = `${textSize}px sans-serif`;
-        ctx.fillText(metrics[i].date, x, y + spacing);
-      });
-
-      ctx.restore();
-    }
-  };
-
   const options = {
-    cutout: "58%",
+    cutout: "65%",
+    onClick: (_, elements) => {
+      if (elements.length > 0) {
+        setSelected(labels[elements[0].index]);
+      }
+    },
     plugins: {
-      legend: { position: "bottom" },
-      tooltip: { enabled: true }
+      legend: { position: "top" }
     }
   };
+
+  let center = "Kliknij dział";
+  if (selected) {
+    const scores = grouped[selected].scores;
+    const avg =
+      scores.reduce((a, b) => a + b, 0) / scores.length;
+
+    const lastDate = grouped[selected].dates
+      .sort((a, b) => b - a)[0]
+      .toISOString()
+      .split("T")[0];
+
+    center = `${selected}\nŚrednia: ${avg.toFixed(2)}\nOstatni: ${lastDate}`;
+  }
 
   return (
-    <Doughnut
-      data={data}
-      options={options}
-      plugins={[segmentTextPlugin]}
-    />
+    <div style={{ position: "relative" }}>
+      <Doughnut data={data} options={options} />
+
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          textAlign: "center",
+          fontWeight: "bold",
+          whiteSpace: "pre-line",
+          pointerEvents: "none"
+        }}
+      >
+        {center}
+      </div>
+    </div>
   );
 }
