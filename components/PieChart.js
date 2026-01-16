@@ -8,7 +8,6 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// ===== KOLOR WG ŚREDNIEJ =====
 const getColorByAvg = (avg) => {
   if (avg <= 1) return "#1b5e20";
   if (avg <= 2) return "#66bb6a";
@@ -30,10 +29,8 @@ export default function PieChart({ audits }) {
     }
 
     grouped[a.department].count += 1;
-
     if (a.date) grouped[a.department].dates.push(new Date(a.date));
-    if (typeof a.score === "number" && !isNaN(a.score))
-      grouped[a.department].scores.push(a.score);
+    if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
   });
 
   const labels = Object.keys(grouped);
@@ -52,7 +49,7 @@ export default function PieChart({ audits }) {
       count: grouped[dep].count,
       lastDate: dates.length
         ? dates[0].toISOString().split("T")[0]
-        : "brak daty",
+        : "",
       color: getColorByAvg(avg)
     };
   });
@@ -63,40 +60,36 @@ export default function PieChart({ audits }) {
       {
         data: metrics.map(m => m.count),
         backgroundColor: metrics.map(m => m.color),
-        borderColor: "#ffffff",
-        borderWidth: 2,
-        hoverOffset: 10
+        borderColor: "#fff",
+        borderWidth: 2
       }
     ]
   };
 
-  // ===== TEKST NA SEGMENTACH (PROSTY, CZARNY) =====
   const textPlugin = {
-    id: "textPlugin",
+    id: "text",
     afterDraw(chart) {
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
 
       ctx.save();
-      ctx.fillStyle = "#000"; // 🔥 CZARNE
+      ctx.fillStyle = "#000";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
         const angle = (arc.startAngle + arc.endAngle) / 2;
-        const r = arc.outerRadius * 0.9;
+        const r = arc.outerRadius * 0.78;
 
         const x = arc.x + Math.cos(angle) * r;
         const y = arc.y + Math.sin(angle) * r;
 
         ctx.font = "bold 14px sans-serif";
-        ctx.fillText(metrics[i].name, x, y - 18);
-
+        ctx.fillText(metrics[i].name, x, y - 16);
         ctx.font = "13px sans-serif";
         ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
-
         ctx.font = "12px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 18);
+        ctx.fillText(metrics[i].lastDate, x, y + 16);
       });
 
       ctx.restore();
