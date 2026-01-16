@@ -18,7 +18,7 @@ const DEPARTMENTS = [
   "PH JAKUB HARASIMOWICZ",
   "PRĄD DLA BIZNESU",
   "SZKOLENIA",
-  "ADMINISTRATOR",
+  "ADMINISTRACJA",
   "KONTROLA JAKOŚCI CC",
   "KONTROLA JAKOŚCI PH",
   "MAGAZYNY",
@@ -166,7 +166,7 @@ export default function Home() {
               color: "#333",
               borderRadius: "18px",
               padding: "20px",
-              width: "1200px",   // ⬅ ZMIENIASZ SZEROKOŚĆ
+              width: "800px",   
               height: "800px",   // ⬅ ZMIENIASZ WYSOKOŚĆ
               margin: "0 auto"
             }}
