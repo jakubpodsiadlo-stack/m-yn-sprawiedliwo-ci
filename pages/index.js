@@ -66,7 +66,7 @@ export default function Home() {
 
       {/* CONTENT */}
       <div style={styles.content}>
-        {/* FORM - PRZYWRÓCONY DO ORYGINAŁU */}
+        {/* FORM */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -115,69 +115,71 @@ export default function Home() {
           </div>
         )}
 
-        {/* DASHBOARD - Z KOLOROWĄ TABELĄ */}
+        {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
             {/* LEWA TABELA */}
             <div style={styles.sideCard}>
               <h3 style={styles.sideTitle}>Działy</h3>
-              <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ opacity: 0.6 }}>
-                    <th align="left">Dział</th>
-                    <th align="right">Dni</th>
-                    <th align="right">Śr.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const todayD = new Date();
-                    const grouped = {};
+              <div style={{ overflowY: "auto", height: "calc(100% - 60px)" }}>
+                <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ opacity: 0.6 }}>
+                      <th align="left">Dział</th>
+                      <th align="right">Dni</th>
+                      <th align="right">Śr.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const todayD = new Date();
+                      const grouped = {};
 
-                    audits.forEach(a => {
-                      if (!grouped[a.department]) grouped[a.department] = { dates: [], scores: [] };
-                      if (a.date) grouped[a.department].dates.push(new Date(a.date));
-                      if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
-                    });
+                      audits.forEach(a => {
+                        if (!grouped[a.department]) grouped[a.department] = { dates: [], scores: [] };
+                        if (a.date) grouped[a.department].dates.push(new Date(a.date));
+                        if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
+                      });
 
-                    const getColor = (days) => {
-                      if (days === null) return "transparent";
-                      if (days > 14) return "#ffcccc"; // Czerwony
-                      if (days >= 5) return "#fff3cd"; // Żółty
-                      return "#d4edda";              // Zielony
-                    };
+                      const getColor = (days) => {
+                        if (days === null) return "transparent";
+                        if (days > 14) return "#ffcccc";
+                        if (days >= 5) return "#fff3cd";
+                        return "#d4edda";
+                      };
 
-                    return Object.entries(grouped)
-                      .map(([dep, d]) => {
-                        const last = d.dates.sort((a,b)=>b-a)[0];
-                        const daysAgo = last ? Math.floor((todayD-last)/(1000*60*60*24)) : null;
-                        const avg = d.scores.length ? (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(2) : "-";
-                        return { dep, daysAgo, avg };
-                      })
-                      .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
-                      .map(r => (
-                        <tr key={r.dep} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                          <td style={{ padding: "8px 0" }}>{r.dep}</td>
-                          <td align="right" style={{ padding: "8px 0" }}>
-                            <span style={{
-                              background: getColor(r.daysAgo),
-                              padding: "2px 8px",
-                              borderRadius: "10px",
-                              fontWeight: "bold",
-                              color: "#333",
-                              display: "inline-block",
-                              minWidth: "25px",
-                              textAlign: "center"
-                            }}>
-                              {r.daysAgo ?? "—"}
-                            </span>
-                          </td>
-                          <td align="right" style={{ padding: "8px 0", fontWeight: "bold" }}>{r.avg}</td>
-                        </tr>
-                      ));
-                  })()}
-                </tbody>
-              </table>
+                      return Object.entries(grouped)
+                        .map(([dep, d]) => {
+                          const last = d.dates.sort((a,b)=>b-a)[0];
+                          const daysAgo = last ? Math.floor((todayD-last)/(1000*60*60*24)) : null;
+                          const avg = d.scores.length ? (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(2) : "-";
+                          return { dep, daysAgo, avg };
+                        })
+                        .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
+                        .map(r => (
+                          <tr key={r.dep} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                            <td style={{ padding: "8px 0" }}>{r.dep}</td>
+                            <td align="right" style={{ padding: "8px 0" }}>
+                              <span style={{
+                                background: getColor(r.daysAgo),
+                                padding: "2px 8px",
+                                borderRadius: "10px",
+                                fontWeight: "bold",
+                                color: "#333",
+                                display: "inline-block",
+                                minWidth: "25px",
+                                textAlign: "center"
+                              }}>
+                                {r.daysAgo ?? "—"}
+                              </span>
+                            </td>
+                            <td align="right" style={{ padding: "8px 0", fontWeight: "bold" }}>{r.avg}</td>
+                          </tr>
+                        ));
+                    })()}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* ŚRODEK – KOŁO */}
@@ -185,9 +187,9 @@ export default function Home() {
               <PieChart audits={audits} />
             </div>
 
-            {/* PRAWA STRONA – KOMENTARZE */}
+            {/* PRAWA STRONA – KOMENTARZE (ZMODYFIKOWANA) */}
             <div style={styles.sideCard}>
-              <h3 style={styles.sideTitle}>Szczegóły audytu</h3>
+              <h3 style={styles.sideTitle}>Szczegóły audytów</h3>
 
               <select
                 style={styles.input}
@@ -195,29 +197,29 @@ export default function Home() {
                 onChange={e => setSelectedDepartment(e.target.value)}
               >
                 <option value="">— wybierz dział —</option>
-                {[...new Set(audits.map(a => a.department))].map(d => (
+                {[...new Set(audits.map(a => a.department))].sort().map(d => (
                   <option key={d} value={d}>{d}</option>
                 ))}
               </select>
 
-              {selectedDepartment && (() => {
-                const filtered = audits
+              <div style={styles.scrollArea}>
+                {selectedDepartment && audits
                   .filter(a => a.department === selectedDepartment)
-                  .sort((a,b)=>new Date(b.date)-new Date(a.date));
-
-                if (!filtered.length) return <p style={{opacity:.6}}>Brak audytów</p>;
-
-                const last = filtered[0];
-                return (
-                  <div style={{ fontSize: "14px" }}>
-                    <p><b>Data:</b> {last.date}</p>
-                    <p><b>Ocena:</b> {last.score}</p>
-                    <div style={styles.commentBox}>
-                      {last.comment || "Brak komentarza"}
+                  .sort((a, b) => new Date(b.date) - new Date(a.date))
+                  .map((audit, idx) => (
+                    <div key={idx} style={styles.historyItem}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", fontSize: "12px", opacity: 0.7 }}>
+                        <span>📅 {audit.date}</span>
+                        <span>⭐ Ocena: {audit.score}</span>
+                      </div>
+                      <div style={styles.commentBox}>
+                        {audit.comment || <i style={{ opacity: 0.5 }}>Brak komentarza</i>}
+                      </div>
                     </div>
-                  </div>
-                );
-              })()}
+                  ))
+                }
+                {!selectedDepartment && <p style={{ textAlign: "center", opacity: 0.5, marginTop: "20px" }}>Wybierz dział, aby zobaczyć historię</p>}
+              </div>
             </div>
           </div>
         )}
@@ -226,7 +228,7 @@ export default function Home() {
   );
 }
 
-/* ===== STYLES - POWRÓT DO ORYGINALNEGO UKŁADU ===== */
+/* ===== STYLES ===== */
 
 const styles = {
   page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff"},
@@ -238,12 +240,23 @@ const styles = {
   title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
   input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"16px",borderRadius:"10px",border:"1px solid #ccc"},
   textarea:{width:"100%",height:"110px",padding:"14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc"},
-  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff"},
+  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff",cursor: "pointer"},
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
   dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
-  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333"},
+  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333", display: "flex", flexDirection: "column"},
   centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px"},
   sideTitle:{color:"#1e3c72",marginBottom:"16px"},
-  commentBox:{marginTop:"12px",padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4"}
+  scrollArea: {flex: 1, overflowY: "auto", paddingRight: "10px"},
+  historyItem: {marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px"},
+  commentBox:{
+    marginTop:"4px",
+    padding:"12px",
+    borderRadius:"10px",
+    background:"#f5f7fb",
+    lineHeight:"1.4",
+    fontSize: "14px",
+    wordBreak: "break-word",
+    whiteSpace: "pre-wrap"
+  }
 };
