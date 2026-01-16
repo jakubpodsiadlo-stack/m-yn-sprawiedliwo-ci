@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import PieChart from "../components/PieChart";
 
+// ===== DZISIEJSZA DATA (YYYY-MM-DD) =====
+const today = () => new Date().toISOString().split("T")[0];
+
 const DEPARTMENTS = [
   "CC",
   "HR",
@@ -36,7 +39,7 @@ export default function Home() {
   const [audits, setAudits] = useState([]);
   const [form, setForm] = useState({
     department: DEPARTMENTS[0],
-    date: "",
+    date: today(),          // 👈 DOMYŚLNIE DZIŚ
     score: 3,
     comment: ""
   });
@@ -61,7 +64,7 @@ export default function Home() {
 
     setForm({
       department: DEPARTMENTS[0],
-      date: "",
+      date: today(),        // 👈 PO ZAPISIE ZNOWU DZIŚ
       score: 3,
       comment: ""
     });
