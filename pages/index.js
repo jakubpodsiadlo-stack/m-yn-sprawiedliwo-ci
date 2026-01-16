@@ -5,33 +5,17 @@ const todayStr = () => new Date().toISOString().split("T")[0];
 const todayDate = new Date();
 
 const DEPARTMENTS = [
-  "CC",
-  "HR",
-  "KADRY",
-  "KSIĘGOWOŚĆ",
-  "PH MATEUSZ HOWIS",
-  "PH BARTŁOMIEJ JĘDRZEJEC",
-  "PH SYLWESTER KAWALEC",
-  "PH JAN DYDUCH",
-  "PH ALEKSANDER ZAGAJEWSKI",
-  "PH DAWID KANIA",
-  "PH BARTOSZ SIEDLECKI",
-  "PH JAKUB HARASIMOWICZ",
-  "PRĄD DLA BIZNESU",
-  "SZKOLENIA",
-  "ADMINISTRATOR",
-  "KONTROLA JAKOŚCI CC",
-  "KONTROLA JAKOŚCI PH",
-  "MAGAZYNY",
-  "RETENCJA",
-  "TERMO",
+  "CC","HR","KADRY","KSIĘGOWOŚĆ",
+  "PH MATEUSZ HOWIS","PH BARTŁOMIEJ JĘDRZEJEC",
+  "PH SYLWESTER KAWALEC","PH JAN DYDUCH",
+  "PH ALEKSANDER ZAGAJEWSKI","PH DAWID KANIA",
+  "PH BARTOSZ SIEDLECKI","PH JAKUB HARASIMOWICZ",
+  "PRĄD DLA BIZNESU","SZKOLENIA","ADMINISTRACJA",
+  "KONTROLA JAKOŚCI CC","KONTROLA JAKOŚCI PH",
+  "MAGAZYNY","RETENCJA","TERMO",
   "DZIAŁ DOTACJI I ZGŁOSZEŃ ZE",
-  "DZIAŁ OBSŁUGI KLIENTA",
-  "DZIAŁ ZAKUPÓW",
-  "FAKTURY",
-  "KREDYTY",
-  "MARKETING",
-  "PV"
+  "DZIAŁ OBSŁUGI KLIENTA","DZIAŁ ZAKUPÓW",
+  "FAKTURY","KREDYTY","MARKETING","PV"
 ];
 
 export default function Home() {
@@ -44,17 +28,14 @@ export default function Home() {
     comment: ""
   });
 
-  // ===== LOAD AUDITS =====
+  // ===== LOAD =====
   const load = async () => {
     const res = await fetch("/api/audits");
     setAudits(await res.json());
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  // ===== SUBMIT =====
   const submit = async () => {
     await fetch("/api/audits", {
       method: "POST",
@@ -72,61 +53,48 @@ export default function Home() {
     load();
   };
 
-  // ===== TABELA: DNI OD OSTATNIEGO AUDYTU + ŚREDNIA =====
+  // ===== TABELA =====
   const tableData = useMemo(() => {
     const grouped = {};
 
     audits.forEach(a => {
       if (!grouped[a.department]) {
-        grouped[a.department] = {
-          dates: [],
-          scores: []
-        };
+        grouped[a.department] = { dates: [], scores: [] };
       }
       if (a.date) grouped[a.department].dates.push(new Date(a.date));
       if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
     });
 
     return Object.entries(grouped)
-      .map(([department, data]) => {
-        const lastDate = data.dates.sort((a, b) => b - a)[0];
-        const daysAgo = lastDate
-          ? Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24))
+      .map(([department, d]) => {
+        const last = d.dates.sort((a, b) => b - a)[0];
+        const daysAgo = last
+          ? Math.floor((todayDate - last) / (1000 * 60 * 60 * 24))
           : null;
 
         const avg =
-          data.scores.length > 0
-            ? (
-                data.scores.reduce((a, b) => a + b, 0) /
-                data.scores.length
-              ).toFixed(2)
+          d.scores.length
+            ? (d.scores.reduce((a, b) => a + b, 0) / d.scores.length).toFixed(2)
             : "-";
 
-        return {
-          department,
-          daysAgo,
-          avg
-        };
+        return { department, daysAgo, avg };
       })
       .sort((a, b) => (b.daysAgo ?? -1) - (a.daysAgo ?? -1));
   }, [audits]);
 
   return (
     <div style={styles.page}>
-      {/* ===== ZAKŁADKI ===== */}
+      {/* ===== TABS ===== */}
       <div style={styles.tabs}>
         <button
           onClick={() => setTab("form")}
           style={tab === "form" ? styles.activeTab : styles.tab}
-        >
-          📝 WPROWADŹ AUDYT
-        </button>
+        >📝 WPROWADŹ AUDYT</button>
+
         <button
           onClick={() => setTab("chart")}
           style={tab === "chart" ? styles.activeTab : styles.tab}
-        >
-          📊 WIZUALIZACJA
-        </button>
+        >📊 WIZUALIZACJA</button>
       </div>
 
       <div style={styles.content}>
@@ -137,95 +105,74 @@ export default function Home() {
 
             <select
               value={form.department}
-              onChange={e =>
-                setForm({ ...form, department: e.target.value })
-              }
+              onChange={e => setForm({ ...form, department: e.target.value })}
               style={styles.input}
             >
-              {DEPARTMENTS.map(d => (
-                <option key={d}>{d}</option>
-              ))}
+              {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
             </select>
 
             <input
               type="date"
               value={form.date}
-              onChange={e =>
-                setForm({ ...form, date: e.target.value })
-              }
+              onChange={e => setForm({ ...form, date: e.target.value })}
               style={styles.input}
             />
 
-            <div style={{ marginBottom: "24px" }}>
-              <p style={{ fontWeight: "bold" }}>
-                Poziom niezadowolenia: {form.score}
-              </p>
-              <div style={styles.scoreRow}>
-                {[1, 2, 3, 4, 5].map(n => (
-                  <div
-                    key={n}
-                    onClick={() => setForm({ ...form, score: n })}
-                    style={{
-                      ...styles.scoreBox,
-                      background:
-                        form.score === n ? "#1e3c72" : "#e0e0e0",
-                      color:
-                        form.score === n ? "#fff" : "#333"
-                    }}
-                  >
-                    {n}
-                  </div>
-                ))}
-              </div>
+            <p><b>Poziom niezadowolenia: {form.score}</b></p>
+
+            <div style={styles.scoreRow}>
+              {[1,2,3,4,5].map(n => (
+                <div
+                  key={n}
+                  onClick={() => setForm({ ...form, score: n })}
+                  style={{
+                    ...styles.scoreBox,
+                    background: form.score === n ? "#1e3c72" : "#e0e0e0",
+                    color: form.score === n ? "#fff" : "#333"
+                  }}
+                >{n}</div>
+              ))}
             </div>
 
             <textarea
               placeholder="Komentarz"
               value={form.comment}
-              onChange={e =>
-                setForm({ ...form, comment: e.target.value })
-              }
+              onChange={e => setForm({ ...form, comment: e.target.value })}
               style={styles.textarea}
             />
 
-            <button onClick={submit} style={styles.submit}>
-              Dodaj audyt
-            </button>
+            <button onClick={submit} style={styles.submit}>Dodaj audyt</button>
           </div>
         )}
 
-        {/* ===== WIZUALIZACJA ===== */}
+        {/* ===== DASHBOARD ===== */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
-            {/* ===== TABELA ===== */}
-            <div style={styles.tableBox}>
-              <h3 style={styles.tableTitle}>Działy – dni od audytu</h3>
+            {/* ===== LEWY PROSTOKĄT – TABELA ===== */}
+            <div style={styles.tableCard}>
+              <h3 style={styles.tableTitle}>Dni od ostatniego audytu</h3>
               <table style={styles.table}>
                 <thead>
                   <tr>
                     <th>Dział</th>
-                    <th>Dni od audytu</th>
-                    <th>Śr. ocena</th>
+                    <th>Dni</th>
+                    <th>Śr.</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tableData.map(row => (
-                    <tr key={row.department}>
-                      <td>{row.department}</td>
-                      <td>
-                        {row.daysAgo !== null
-                          ? `${row.daysAgo} dni`
-                          : "brak"}
-                      </td>
-                      <td>{row.avg}</td>
+                  {tableData.map(r => (
+                    <tr key={r.department}>
+                      <td>{r.department}</td>
+                      <td>{r.daysAgo ?? "—"}</td>
+                      <td>{r.avg}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* ===== KOŁO ===== */}
-            <div style={styles.chartBox}>
+            {/* ===== PRAWY PROSTOKĄT – KOŁO ===== */}
+            <div style={styles.chartCard}>
               <PieChart audits={audits} />
             </div>
           </div>
@@ -240,7 +187,7 @@ export default function Home() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+    background: "linear-gradient(135deg,#1e3c72,#2a5298)",
     padding: "40px",
     color: "#fff"
   },
@@ -253,21 +200,21 @@ const styles = {
   tab: {
     width: "48%",
     height: "56px",
-    fontSize: "18px",
     borderRadius: "14px",
     border: "none",
-    background: "rgba(255,255,255,0.25)",
+    background: "rgba(255,255,255,.25)",
     color: "#fff",
+    fontSize: "18px",
     cursor: "pointer"
   },
   activeTab: {
     width: "48%",
     height: "56px",
-    fontSize: "18px",
     borderRadius: "14px",
     border: "none",
     background: "#fff",
     color: "#1e3c72",
+    fontSize: "18px",
     fontWeight: "bold",
     cursor: "pointer"
   },
@@ -282,20 +229,28 @@ const styles = {
     padding: "30px"
   },
 
-  /* ===== DASHBOARD ===== */
+  /* DASHBOARD */
   dashboard: {
     display: "flex",
-    gap: "24px",
+    gap: "24px"
+  },
+  tableCard: {
+    width: "420px",
+    background: "#fff",
+    color: "#333",
+    borderRadius: "18px",
+    padding: "20px",
+    maxHeight: "820px",
+    overflowY: "auto"
+  },
+  chartCard: {
+    flex: 1,
     background: "#fff",
     borderRadius: "18px",
     padding: "20px",
-    color: "#333"
+    height: "820px"
   },
 
-  tableBox: {
-    width: "420px",
-    overflowY: "auto"
-  },
   tableTitle: {
     marginBottom: "12px",
     color: "#1e3c72"
@@ -306,16 +261,11 @@ const styles = {
     fontSize: "14px"
   },
 
-  chartBox: {
-    flex: 1,
-    height: "800px"
-  },
-
   input: {
     width: "100%",
     height: "52px",
-    padding: "0 14px",
     marginBottom: "16px",
+    padding: "0 14px",
     borderRadius: "10px",
     border: "1px solid #ccc"
   },
@@ -340,15 +290,16 @@ const styles = {
   },
   scoreRow: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    margin: "16px 0"
   },
   scoreBox: {
     width: "18%",
     height: "52px",
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: "10px",
     cursor: "pointer",
     fontWeight: "bold"
   }
