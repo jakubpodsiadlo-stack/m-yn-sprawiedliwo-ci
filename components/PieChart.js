@@ -87,13 +87,13 @@ export default function PieChart({ audits }) {
         ctx.translate(x, y);
         ctx.rotate(rotation);
 
-        ctx.font = "bold 11px sans-serif";
+        ctx.font = "bold 13px sans-serif";
         ctx.fillText(metrics[i].name, 0, -14);
 
-        ctx.font = "10px sans-serif";
+        ctx.font = "13px sans-serif";
         ctx.fillText(`Audytów: ${metrics[i].count}`, 0, 0);
 
-        ctx.font = "9.5px sans-serif";
+        ctx.font = "13px sans-serif";
         ctx.fillText(metrics[i].lastDate, 0, 14);
 
         ctx.restore();
