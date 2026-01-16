@@ -25,7 +25,7 @@ export default function Home() {
   const [audits, setAudits] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [form, setForm] = useState({
-    department: DEPARTMENTS[0],
+    department: "", // Startujemy z pustym polem
     date: today(),
     score: 3,
     comment: ""
@@ -50,12 +50,17 @@ export default function Home() {
   };
 
   const submit = async () => {
+    if (!form.department) {
+      alert("Proszę najpierw wybrać dział!");
+      return;
+    }
+
     await fetch("/api/audits", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form)
     });
-    setForm({ department: DEPARTMENTS[0], date: today(), score: 3, comment: "" });
+    setForm({ department: "", date: today(), score: 3, comment: "" });
     load();
   };
 
@@ -75,75 +80,31 @@ export default function Home() {
   if (!isLoggedIn) {
     return (
       <div style={styles.page}>
-        {/* NOWA, ODŚWIEŻONA GRAFIKA MŁYNA */}
         <div style={styles.logoContainer}>
           <svg viewBox="0 0 100 100" style={styles.millIcon}>
-            {/* Zewnętrzna poświata budynku */}
-            <path 
-              d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" 
-              fill="rgba(79, 195, 247, 0.2)" 
-              filter="blur(4px)"
-            />
-            {/* Biały gruby kontur budynku */}
-            <path 
-              d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" 
-              fill="none" 
-              stroke="white" 
-              strokeWidth="4" 
-              strokeLinejoin="round" 
-            />
-            {/* Główna bryła młyna (gradient błękitu) */}
-            <path 
-              d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" 
-              fill="#4fc3f7" 
-            />
-            
-            {/* Epickie Skrzydła z detalami */}
+            <path d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" fill="rgba(79, 195, 247, 0.2)" filter="blur(4px)"/>
+            <path d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" fill="none" stroke="white" strokeWidth="4" strokeLinejoin="round" />
+            <path d="M50 8 L88 42 L82 92 L18 92 L12 42 Z" fill="#4fc3f7" />
             <g stroke="white" strokeWidth="5" strokeLinecap="round">
-              {/* Skrzydło 1 */}
-              <line x1="50" y1="45" x2="85" y2="15" />
-              <path d="M50 45 L85 15 L75 5 L40 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
-              {/* Skrzydło 2 */}
-              <line x1="50" y1="45" x2="85" y2="75" />
-              <path d="M50 45 L85 75 L95 65 L60 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
-              {/* Skrzydło 3 */}
-              <line x1="50" y1="45" x2="15" y2="75" />
-              <path d="M50 45 L15 75 L5 65 L40 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
-              {/* Skrzydło 4 */}
-              <line x1="50" y1="45" x2="15" y2="15" />
-              <path d="M50 45 L15 15 L25 5 L60 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              <line x1="50" y1="45" x2="85" y2="15" /><path d="M50 45 L85 15 L75 5 L40 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              <line x1="50" y1="45" x2="85" y2="75" /><path d="M50 45 L85 75 L95 65 L60 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              <line x1="50" y1="45" x2="15" y2="75" /><path d="M50 45 L15 75 L5 65 L40 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
+              <line x1="50" y1="45" x2="15" y2="15" /><path d="M50 45 L15 15 L25 5 L60 35 Z" fill="rgba(255,255,255,0.3)" stroke="none" />
             </g>
-
-            {/* Centralny rdzeń skrzydeł */}
             <circle cx="50" cy="45" r="7" fill="#01579b" stroke="white" strokeWidth="2" />
-            
-            {/* Brama młyna */}
             <path d="M42 92 V75 Q50 68 58 75 V92" fill="#01579b" stroke="white" strokeWidth="1" />
           </svg>
           <h1 style={styles.mainTitle}>MŁYN SPRAWIEDLIWOŚCI</h1>
         </div>
-
         <div style={styles.loginCard}>
           <h2 style={styles.title}>LOGOWANIE</h2>
           <form onSubmit={handleLogin}>
             <label style={styles.label}>Użytkownik:</label>
-            <select 
-              style={styles.input}
-              value={loginForm.user}
-              onChange={e => setLoginForm({...loginForm, user: e.target.value})}
-            >
+            <select style={styles.input} value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})}>
               {USERS.map(u => <option key={u} value={u}>{u}</option>)}
             </select>
-            
             <label style={styles.label}>Hasło:</label>
-            <input 
-              type="password"
-              style={styles.input}
-              value={loginForm.pass}
-              onChange={e => setLoginForm({...loginForm, pass: e.target.value})}
-              placeholder="Wpisz hasło"
-            />
-            
+            <input type="password" style={styles.input} value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} placeholder="Wpisz hasło" />
             <button type="submit" style={styles.submit}>Zaloguj się</button>
           </form>
         </div>
@@ -154,12 +115,8 @@ export default function Home() {
   return (
     <div style={styles.page}>
       <div style={styles.tabs}>
-        <button onClick={() => setTab("form")} style={tab === "form" ? styles.activeTab : styles.tab}>
-          📝 WPROWADŹ AUDYT
-        </button>
-        <button onClick={() => setTab("chart")} style={tab === "chart" ? styles.activeTab : styles.tab}>
-          📊 WIZUALIZACJA
-        </button>
+        <button onClick={() => setTab("form")} style={tab === "form" ? styles.activeTab : styles.tab}>📝 WPROWADŹ AUDYT</button>
+        <button onClick={() => setTab("chart")} style={tab === "chart" ? styles.activeTab : styles.tab}>📊 WIZUALIZACJA</button>
       </div>
 
       <div style={styles.content}>
@@ -171,36 +128,18 @@ export default function Home() {
               onChange={e => setForm({ ...form, department: e.target.value })}
               style={styles.input}
             >
-              {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+              {/* NOWY KAFELEK WYBORU */}
+              <option value="" disabled>--- WYBIERZ DZIAŁ ---</option>
+              {DEPARTMENTS.sort().map(d => <option key={d} value={d}>{d}</option>)}
             </select>
-            <input
-              type="date"
-              value={form.date}
-              onChange={e => setForm({ ...form, date: e.target.value })}
-              style={styles.input}
-            />
+            <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={styles.input} />
             <p style={{ fontWeight: "bold" }}>Poziom niezadowolenia: {form.score}</p>
             <div style={styles.scoreRow}>
               {[1,2,3,4,5].map(n => (
-                <div
-                  key={n}
-                  onClick={() => setForm({ ...form, score: n })}
-                  style={{
-                    ...styles.scoreBox,
-                    background: form.score === n ? "#1e3c72" : "#e0e0e0",
-                    color: form.score === n ? "#fff" : "#333"
-                  }}
-                >
-                  {n}
-                </div>
+                <div key={n} onClick={() => setForm({ ...form, score: n })} style={{ ...styles.scoreBox, background: form.score === n ? "#1e3c72" : "#e0e0e0", color: form.score === n ? "#fff" : "#333" }}>{n}</div>
               ))}
             </div>
-            <textarea
-              placeholder="Komentarz"
-              value={form.comment}
-              onChange={e => setForm({ ...form, comment: e.target.value })}
-              style={styles.textarea}
-            />
+            <textarea placeholder="Komentarz" value={form.comment} onChange={e => setForm({ ...form, comment: e.target.value })} style={styles.textarea} />
             <button onClick={submit} style={styles.submit}>Dodaj audyt</button>
           </div>
         )}
@@ -238,20 +177,7 @@ export default function Home() {
                         .map(r => (
                           <tr key={r.dep} style={{ borderBottom: "1px solid #ddd" }}>
                             <td style={styles.tableCell}>{r.dep}</td>
-                            <td style={styles.tableCell}>
-                              <span style={{
-                                background: getDaysColor(r.daysAgo),
-                                padding: "2px 8px",
-                                borderRadius: "10px",
-                                fontWeight: "bold",
-                                color: "#333",
-                                display: "inline-block",
-                                minWidth: "25px",
-                                textAlign: "center"
-                              }}>
-                                {r.daysAgo ?? "—"}
-                              </span>
-                            </td>
+                            <td style={styles.tableCell}><span style={{ background: getDaysColor(r.daysAgo), padding: "2px 8px", borderRadius: "10px", fontWeight: "bold", color: "#333", display: "inline-block", minWidth: "25px", textAlign: "center" }}>{r.daysAgo ?? "—"}</span></td>
                             <td style={{ ...styles.tableCell, fontWeight: "bold", color: "#1e3c72" }}>{r.avg}</td>
                           </tr>
                         ));
@@ -260,48 +186,23 @@ export default function Home() {
                 </table>
               </div>
             </div>
-
-            <div style={styles.centerCard}>
-              <PieChart audits={audits} />
-            </div>
-
+            <div style={styles.centerCard}><PieChart audits={audits} /></div>
             <div style={styles.sideCard}>
               <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>KOMENTARZE</h3>
-              <select
-                style={styles.input}
-                value={selectedDepartment}
-                onChange={e => setSelectedDepartment(e.target.value)}
-              >
+              <select style={styles.input} value={selectedDepartment} onChange={e => setSelectedDepartment(e.target.value)}>
                 <option value="">— wybierz dział —</option>
-                {[...new Set(audits.map(a => a.department))].sort().map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
+                {[...new Set(audits.map(a => a.department))].sort().map(d => (<option key={d} value={d}>{d}</option>))}
               </select>
               <div style={styles.scrollArea}>
-                {selectedDepartment && audits
-                  .filter(a => a.department === selectedDepartment)
-                  .sort((a, b) => new Date(b.date) - new Date(a.date))
-                  .map((audit, idx) => (
-                    <div key={idx} style={styles.historyItem}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "12px", alignItems: "center" }}>
-                        <span style={{ opacity: 0.7 }}>📅 {audit.date}</span>
-                        <span style={{
-                          background: getScoreColor(audit.score),
-                          padding: "2px 10px",
-                          borderRadius: "10px",
-                          fontWeight: "bold",
-                          color: "#333",
-                          fontSize: "11px"
-                        }}>
-                          OCENA: {audit.score}
-                        </span>
-                      </div>
-                      <div style={styles.commentBox}>
-                        {audit.comment || <i style={{ opacity: 0.5 }}>Brak komentarza</i>}
-                      </div>
+                {selectedDepartment && audits.filter(a => a.department === selectedDepartment).sort((a, b) => new Date(b.date) - new Date(a.date)).map((audit, idx) => (
+                  <div key={idx} style={styles.historyItem}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "12px", alignItems: "center" }}>
+                      <span style={{ opacity: 0.7 }}>📅 {audit.date}</span>
+                      <span style={{ background: getScoreColor(audit.score), padding: "2px 10px", borderRadius: "10px", fontWeight: "bold", color: "#333", fontSize: "11px" }}>OCENA: {audit.score}</span>
                     </div>
-                  ))
-                }
+                    <div style={styles.commentBox}>{audit.comment || <i style={{ opacity: 0.5 }}>Brak komentarza</i>}</div>
+                  </div>
+                ))}
                 {!selectedDepartment && <p style={{ textAlign: "center", opacity: 0.5, marginTop: "20px" }}>Wybierz dział, aby zobaczyć historię</p>}
               </div>
             </div>
