@@ -62,7 +62,7 @@ export default function Home() {
         {/* FORMULARZ */}
         {tab === "form" && (
           <div style={styles.card}>
-            <h2>Nowy audyt</h2>
+            <h2 style={styles.title}>NOWY AUDYT</h2>
 
             <select
               value={form.department}
@@ -185,6 +185,12 @@ const styles = {
     color: "#333",
     borderRadius: "18px",
     padding: "30px"
+  },
+  title: {
+    textAlign: "center",
+    letterSpacing: "2px",
+    marginBottom: "25px",
+    color: "#1e3c72"
   },
   input: {
     width: "100%",
