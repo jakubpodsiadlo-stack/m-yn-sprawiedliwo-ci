@@ -8,6 +8,7 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+// ===== KOLOR WG ŚREDNIEJ =====
 const getColorByAvg = (avg) => {
   if (avg <= 1) return "#1b5e20";
   if (avg <= 2) return "#66bb6a";
@@ -30,7 +31,8 @@ export default function PieChart({ audits }) {
 
     grouped[a.department].count += 1;
     if (a.date) grouped[a.department].dates.push(new Date(a.date));
-    if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
+    if (typeof a.score === "number" && !isNaN(a.score))
+      grouped[a.department].scores.push(a.score);
   });
 
   const labels = Object.keys(grouped);
@@ -66,8 +68,9 @@ export default function PieChart({ audits }) {
     ]
   };
 
+  // ===== NAPRZEMIENNE TEKSTY =====
   const textPlugin = {
-    id: "text",
+    id: "alternatingText",
     afterDraw(chart) {
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
@@ -78,18 +81,35 @@ export default function PieChart({ audits }) {
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
+        const angleSize = arc.endAngle - arc.startAngle;
         const angle = (arc.startAngle + arc.endAngle) / 2;
-        const r = arc.outerRadius * 0.78;
+
+        // ❌ za mały segment – nie rysujemy
+        if (angleSize < 0.12) return;
+
+        // 🔀 CO DRUGI SEGMENT – INNY PROMIEŃ
+        const radiusFactor = i % 2 === 0 ? 0.85 : 0.70;
+        const r = arc.outerRadius * radiusFactor;
 
         const x = arc.x + Math.cos(angle) * r;
         const y = arc.y + Math.sin(angle) * r;
 
-        ctx.font = "bold 14px sans-serif";
-        ctx.fillText(metrics[i].name, x, y - 16);
-        ctx.font = "13px sans-serif";
+        // 🟡 średni segment – tylko nazwa
+        if (angleSize < 0.22) {
+          ctx.font = "bold 10px sans-serif";
+          ctx.fillText(metrics[i].name, x, y);
+          return;
+        }
+
+        // 🟢 większy segment – pełne info
+        ctx.font = "bold 11px sans-serif";
+        ctx.fillText(metrics[i].name, x, y - 12);
+
+        ctx.font = "10px sans-serif";
         ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
-        ctx.font = "12px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 16);
+
+        ctx.font = "9.5px sans-serif";
+        ctx.fillText(metrics[i].lastDate, x, y + 12);
       });
 
       ctx.restore();
@@ -104,7 +124,18 @@ export default function PieChart({ audits }) {
     layout: { padding: 0 },
     plugins: {
       legend: { display: false },
-      tooltip: { enabled: true }
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const m = metrics[ctx.dataIndex];
+            return [
+              m.name,
+              `Audytów: ${m.count}`,
+              `Ostatni: ${m.lastDate}`
+            ];
+          }
+        }
+      }
     }
   };
 
