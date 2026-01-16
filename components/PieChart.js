@@ -17,28 +17,6 @@ const getColorByAvg = (avg) => {
   return "#b71c1c";
 };
 
-// ===== TEKST PO ŁUKU =====
-const drawTextAlongArc = (ctx, text, x, y, radius, angle) => {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-
-  const chars = text.split("");
-  const spacing = 0.12; // im mniejsze tym ciaśniej
-
-  ctx.rotate(-((chars.length - 1) * spacing) / 2);
-
-  chars.forEach(char => {
-    ctx.save();
-    ctx.translate(0, -radius);
-    ctx.fillText(char, 0, 0);
-    ctx.restore();
-    ctx.rotate(spacing);
-  });
-
-  ctx.restore();
-};
-
 export default function PieChart({ audits }) {
   const grouped = {};
 
@@ -85,50 +63,40 @@ export default function PieChart({ audits }) {
       {
         data: metrics.map(m => m.count),
         backgroundColor: metrics.map(m => m.color),
-        borderColor: "#fff",
+        borderColor: "#ffffff",
         borderWidth: 2,
-        hoverOffset: 12
+        hoverOffset: 10
       }
     ]
   };
 
-  const segmentTextPlugin = {
-    id: "segmentText",
+  // ===== TEKST NA SEGMENTACH (PROSTY, CZARNY) =====
+  const textPlugin = {
+    id: "textPlugin",
     afterDraw(chart) {
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
 
       ctx.save();
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "#000"; // 🔥 CZARNE
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
         const angle = (arc.startAngle + arc.endAngle) / 2;
-        const centerX = arc.x;
-        const centerY = arc.y;
+        const r = arc.outerRadius * 0.65;
 
-        // ===== NAZWA DZIAŁU PO ŁUKU =====
+        const x = arc.x + Math.cos(angle) * r;
+        const y = arc.y + Math.sin(angle) * r;
+
         ctx.font = "bold 14px sans-serif";
-        drawTextAlongArc(
-          ctx,
-          metrics[i].name,
-          centerX,
-          centerY,
-          arc.outerRadius * 0.95,
-          angle
-        );
+        ctx.fillText(metrics[i].name, x, y - 18);
 
-        // ===== INFO POD ŁUKIEM =====
-        const infoRadius = arc.outerRadius * 0.65;
-        const x = centerX + Math.cos(angle) * infoRadius;
-        const y = centerY + Math.sin(angle) * infoRadius;
-
-        ctx.font = "bold 12px sans-serif";
-        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y - 10);
+        ctx.font = "13px sans-serif";
+        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
 
         ctx.font = "12px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 10);
+        ctx.fillText(metrics[i].lastDate, x, y + 18);
       });
 
       ctx.restore();
@@ -151,7 +119,7 @@ export default function PieChart({ audits }) {
     <Doughnut
       data={data}
       options={options}
-      plugins={[segmentTextPlugin]}
+      plugins={[textPlugin]}
     />
   );
 }
