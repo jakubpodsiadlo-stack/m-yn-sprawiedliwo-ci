@@ -131,7 +131,6 @@ export default function Home() {
         {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
-            {/* LEWA TABELA - WYŚRODKOWANA Z OBRAMOWANIEM */}
             <div style={styles.sideCard}>
               <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>DZIAŁY</h3>
               <div style={{ overflowY: "auto", height: "calc(100% - 60px)" }}>
@@ -250,8 +249,26 @@ const styles = {
   content:{margin:"0 auto"},
   card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px"},
   title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
-  input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"16px",borderRadius:"10px",border:"1px solid #ccc",boxSizing: "border-box"},
-  textarea:{width:"100%",height:"110px",padding:"14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc",boxSizing: "border-box",fontFamily: "inherit"},
+  input:{
+    width:"100%",
+    height:"52px",
+    padding:"0 14px",
+    marginBottom:"16px",
+    borderRadius:"10px",
+    border:"1px solid #ccc",
+    boxSizing: "border-box"
+  },
+  textarea:{
+    width:"100%",
+    height:"110px",
+    padding:"14px",
+    marginBottom:"20px",
+    borderRadius:"10px",
+    border:"1px solid #ccc",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+    resize: "none" // BLOKADA ROZCIĄGANIA POLA
+  },
   submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff", cursor: "pointer"},
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
@@ -262,7 +279,6 @@ const styles = {
   scrollArea: {flex: 1, overflowY: "auto", paddingRight: "10px"},
   historyItem: {marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px"},
   commentBox:{marginTop:"4px",padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4",fontSize:"14px",wordBreak:"break-word",whiteSpace:"pre-wrap"},
-  // Nowe style dla tabeli:
   tableHeader: { padding: "12px 5px", textAlign: "center", borderRight: "1px solid #ddd" },
   tableCell: { padding: "10px 5px", textAlign: "center", borderRight: "1px solid #ddd" }
 };
