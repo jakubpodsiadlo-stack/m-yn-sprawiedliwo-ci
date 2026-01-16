@@ -30,7 +30,7 @@ export default function PieChart({ audits }) {
 
   const labels = Object.keys(grouped);
   const values = labels.map(l => grouped[l].count);
-  const colors = labels.map(l => COLORS[l] || "#999");
+  const colors = labels.map(l => COLORS[l] || "#4a4a4a");
 
   const metrics = labels.map(dep => {
     const dates = grouped[dep].dates.sort((a, b) => b - a);
@@ -51,7 +51,7 @@ export default function PieChart({ audits }) {
         backgroundColor: colors,
         borderColor: "#fff",
         borderWidth: 2,
-        hoverOffset: 16
+        hoverOffset: 18
       }
     ]
   };
@@ -71,8 +71,9 @@ export default function PieChart({ audits }) {
       meta.data.forEach((arc, i) => {
         const angle =
           (arc.startAngle + arc.endAngle) / 2;
-        const radius =
-          (arc.outerRadius + arc.innerRadius) / 2;
+
+        // 👉 PEŁNE KOŁO — tekst bliżej środka
+        const radius = arc.outerRadius * 0.55;
 
         const x = arc.x + Math.cos(angle) * radius;
         const y = arc.y + Math.sin(angle) * radius;
@@ -83,7 +84,7 @@ export default function PieChart({ audits }) {
         const textSize = isActive ? 14 : 12;
         const spacing = isActive ? 20 : 16;
 
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = "#ffffff";
 
         // NAZWA DZIAŁU
         ctx.font = `bold ${titleSize}px sans-serif`;
@@ -111,10 +112,14 @@ export default function PieChart({ audits }) {
   };
 
   const options = {
-    cutout: "58%",
+    cutout: 0, // 👈 PEŁNE KOŁO
     plugins: {
-      legend: { position: "bottom" },
-      tooltip: { enabled: true }
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true
+      }
     }
   };
 
