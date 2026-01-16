@@ -52,14 +52,12 @@ export default function Home() {
     load();
   };
 
-  // Pomocnicza funkcja kolorów dla ocen (wykorzystywana w tabeli i komentarzach)
   const getScoreColor = (score) => {
-    if (score >= 4) return "#ffcccc"; // Czerwony (wysokie niezadowolenie)
-    if (score === 3) return "#fff3cd"; // Żółty
-    return "#d4edda";                // Zielony
+    if (score >= 4) return "#ffcccc";
+    if (score === 3) return "#fff3cd";
+    return "#d4edda";
   };
 
-  // Pomocnicza funkcja kolorów dla dni (tabela po lewej)
   const getDaysColor = (days) => {
     if (days === null) return "transparent";
     if (days > 14) return "#ffcccc";
@@ -133,16 +131,16 @@ export default function Home() {
         {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
-            {/* LEWA TABELA */}
+            {/* LEWA TABELA (ZMODYFIKOWANA) */}
             <div style={styles.sideCard}>
-              <h3 style={styles.sideTitle}>Działy</h3>
+              <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>DZIAŁY</h3>
               <div style={{ overflowY: "auto", height: "calc(100% - 60px)" }}>
                 <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ opacity: 0.6 }}>
-                      <th align="left">Dział</th>
-                      <th align="right">Dni</th>
-                      <th align="right">Śr.</th>
+                      <th align="center" style={{ padding: "0 5px 10px 5px" }}>Dział</th>
+                      <th align="center" style={{ padding: "0 5px 10px 5px" }}>Dni</th>
+                      <th align="center" style={{ padding: "0 5px 10px 5px" }}>Śr.</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -166,8 +164,8 @@ export default function Home() {
                         .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
                         .map(r => (
                           <tr key={r.dep} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                            <td style={{ padding: "8px 0" }}>{r.dep}</td>
-                            <td align="right" style={{ padding: "8px 0" }}>
+                            <td align="center" style={{ padding: "8px 5px", color: "#444" }}>{r.dep}</td>
+                            <td align="center" style={{ padding: "8px 5px" }}>
                               <span style={{
                                 background: getDaysColor(r.daysAgo),
                                 padding: "2px 8px",
@@ -175,13 +173,13 @@ export default function Home() {
                                 fontWeight: "bold",
                                 color: "#333",
                                 display: "inline-block",
-                                minWidth: "25px",
+                                minWidth: "30px",
                                 textAlign: "center"
                               }}>
                                 {r.daysAgo ?? "—"}
                               </span>
                             </td>
-                            <td align="right" style={{ padding: "8px 0", fontWeight: "bold" }}>{r.avg}</td>
+                            <td align="center" style={{ padding: "8px 5px", fontWeight: "bold", color: "#1e3c72" }}>{r.avg}</td>
                           </tr>
                         ));
                     })()}
