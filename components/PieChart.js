@@ -8,7 +8,7 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// ===== KOLOR NA PODSTAWIE ŚREDNIEJ OCENY =====
+// ===== KOLOR WG ŚREDNIEJ OCENY =====
 const getColorByAvg = (avg) => {
   if (avg <= 1) return "#1b5e20";   // mocno zielony
   if (avg <= 2) return "#66bb6a";   // jasnozielony
@@ -20,7 +20,7 @@ const getColorByAvg = (avg) => {
 export default function PieChart({ audits }) {
   const grouped = {};
 
-  // ===== GRUPOWANIE DANYCH =====
+  // ===== GRUPOWANIE =====
   audits.forEach(a => {
     if (!grouped[a.department]) {
       grouped[a.department] = {
@@ -36,7 +36,6 @@ export default function PieChart({ audits }) {
       grouped[a.department].dates.push(new Date(a.date));
     }
 
-    // 🔒 ZABEZPIECZENIE: tylko poprawne liczby
     if (typeof a.score === "number" && !isNaN(a.score)) {
       grouped[a.department].scores.push(a.score);
     }
@@ -52,12 +51,12 @@ export default function PieChart({ audits }) {
     const avg =
       scores.length > 0
         ? scores.reduce((a, b) => a + b, 0) / scores.length
-        : 5; // 🚨 brak danych = czerwony alarm
+        : 5;
 
     return {
       name: dep,
       count: grouped[dep].count,
-      lastDate: dates.length > 0
+      lastDate: dates.length
         ? dates[0].toISOString().split("T")[0]
         : "brak daty",
       avg,
@@ -65,7 +64,7 @@ export default function PieChart({ audits }) {
     };
   });
 
-  // ===== DANE WYKRESU =====
+  // ===== DANE =====
   const data = {
     labels,
     datasets: [
@@ -74,7 +73,7 @@ export default function PieChart({ audits }) {
         backgroundColor: metrics.map(m => m.color),
         borderColor: "#ffffff",
         borderWidth: 2,
-        hoverOffset: 20
+        hoverOffset: 18
       }
     ]
   };
@@ -91,10 +90,10 @@ export default function PieChart({ audits }) {
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
-        const angle =
-          (arc.startAngle + arc.endAngle) / 2;
+        const angle = (arc.startAngle + arc.endAngle) / 2;
 
-        const radius = arc.outerRadius * 0.75;
+        // 🔥 MAKSYMALNY PROMIEŃ (WYPEŁNIA KAFEL)
+        const radius = arc.outerRadius * 0.82;
 
         const x = arc.x + Math.cos(angle) * radius;
         const y = arc.y + Math.sin(angle) * radius;
@@ -102,13 +101,13 @@ export default function PieChart({ audits }) {
         ctx.fillStyle = "#ffffff";
 
         ctx.font = "bold 16px sans-serif";
-        ctx.fillText(metrics[i].name, x, y - 20);
+        ctx.fillText(metrics[i].name, x, y - 22);
 
         ctx.font = "bold 13px sans-serif";
         ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
 
         ctx.font = "13px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 20);
+        ctx.fillText(metrics[i].lastDate, x, y + 22);
       });
 
       ctx.restore();
@@ -117,17 +116,12 @@ export default function PieChart({ audits }) {
 
   // ===== OPCJE =====
   const options = {
-    cutout: 0, // pełne koło
+    cutout: 0,
     responsive: true,
     maintainAspectRatio: false,
-    animation: false, // stabilność
+    animation: false,
     layout: {
-      padding: {
-        top: 20,
-        bottom: 20,
-        left: 20,
-        right: 20
-      }
+      padding: 0 // 🔥 ZERO POWIETRZA
     },
     plugins: {
       legend: {
