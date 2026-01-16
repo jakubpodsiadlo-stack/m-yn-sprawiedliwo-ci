@@ -34,12 +34,10 @@ export default function PieChart({ audits }) {
 
   const metrics = labels.map(dep => {
     const dates = grouped[dep].dates.sort((a, b) => b - a);
-    const lastDate = dates[0].toISOString().split("T")[0];
-
     return {
       name: dep,
       count: grouped[dep].count,
-      lastDate
+      lastDate: dates[0].toISOString().split("T")[0]
     };
   });
 
@@ -49,7 +47,7 @@ export default function PieChart({ audits }) {
       {
         data: values,
         backgroundColor: colors,
-        borderColor: "#fff",
+        borderColor: "#ffffff",
         borderWidth: 2,
         hoverOffset: 18
       }
@@ -72,7 +70,7 @@ export default function PieChart({ audits }) {
         const angle =
           (arc.startAngle + arc.endAngle) / 2;
 
-        // 👉 PEŁNE KOŁO — tekst bliżej środka
+        // 👉 bezpieczny promień – NIE WYJDZIE POZA CANVAS
         const radius = arc.outerRadius * 0.55;
 
         const x = arc.x + Math.cos(angle) * radius;
@@ -86,25 +84,14 @@ export default function PieChart({ audits }) {
 
         ctx.fillStyle = "#ffffff";
 
-        // NAZWA DZIAŁU
         ctx.font = `bold ${titleSize}px sans-serif`;
         ctx.fillText(metrics[i].name, x, y - spacing);
 
-        // ILOŚĆ AUDYTÓW
         ctx.font = `bold ${textSize}px sans-serif`;
-        ctx.fillText(
-          `Audytów: ${metrics[i].count}`,
-          x,
-          y
-        );
+        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
 
-        // OSTATNIA DATA
         ctx.font = `${textSize}px sans-serif`;
-        ctx.fillText(
-          metrics[i].lastDate,
-          x,
-          y + spacing
-        );
+        ctx.fillText(metrics[i].lastDate, x, y + spacing);
       });
 
       ctx.restore();
@@ -112,7 +99,17 @@ export default function PieChart({ audits }) {
   };
 
   const options = {
-    cutout: 0, // 👈 PEŁNE KOŁO
+    cutout: 0, // PEŁNE KOŁO
+    responsive: true,
+    maintainAspectRatio: false, // 🔑 KLUCZ
+    layout: {
+      padding: {
+        top: 40,
+        bottom: 40,
+        left: 40,
+        right: 40
+      }
+    },
     plugins: {
       legend: {
         display: false
