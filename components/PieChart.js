@@ -34,14 +34,14 @@ export default function PieChart({ audits }) {
       {
         data: values,
         backgroundColor: colors,
-        borderColor: "#ffffff",
+        borderColor: "#fff",
         borderWidth: 2
       }
     ]
   };
 
   const options = {
-    cutout: "65%", // ⬅⬅⬅ KLUCZ
+    cutout: "65%",
     onClick: (_, elements) => {
       if (elements.length > 0) {
         setSelected(labels[elements[0].index]);
@@ -55,7 +55,8 @@ export default function PieChart({ audits }) {
   let center = "Kliknij dział";
   if (selected) {
     const scores = grouped[selected].scores;
-    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const avg =
+      scores.reduce((a, b) => a + b, 0) / scores.length;
 
     const lastDate = grouped[selected].dates
       .sort((a, b) => b - a)[0]
