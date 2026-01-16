@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PieChart from "../components/PieChart";
+import VisualizationDashboard from "../components/VisualizationDashboard";
 
 export default function Home() {
   const [tab, setTab] = useState("form");
@@ -11,6 +11,7 @@ export default function Home() {
     comment: ""
   });
 
+  // ===== LOAD AUDITS =====
   const load = async () => {
     const res = await fetch("/api/audits");
     setAudits(await res.json());
@@ -20,6 +21,7 @@ export default function Home() {
     load();
   }, []);
 
+  // ===== SUBMIT =====
   const submit = async () => {
     await fetch("/api/audits", {
       method: "POST",
@@ -40,7 +42,7 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      {/* ZAKŁADKI */}
+      {/* ===== ZAKŁADKI ===== */}
       <div style={styles.tabs}>
         <button
           onClick={() => setTab("form")}
@@ -57,8 +59,9 @@ export default function Home() {
         </button>
       </div>
 
-      {/* ZAWARTOŚĆ */}
+      {/* ===== ZAWARTOŚĆ ===== */}
       <div style={styles.content}>
+        {/* ===== FORMULARZ ===== */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -86,7 +89,7 @@ export default function Home() {
               style={styles.input}
             />
 
-            {/* SKALA 1–10 */}
+            {/* ===== SKALA ===== */}
             <div style={{ marginBottom: "20px" }}>
               <p style={{ fontWeight: "bold" }}>
                 Ocena: {form.score}
@@ -126,10 +129,11 @@ export default function Home() {
           </div>
         )}
 
+        {/* ===== WIZUALIZACJA ===== */}
         {tab === "chart" && (
           <div style={styles.card}>
             {audits.length > 0 ? (
-              <PieChart audits={audits} />
+              <VisualizationDashboard audits={audits} />
             ) : (
               <p>Brak danych do wizualizacji</p>
             )}
@@ -139,6 +143,8 @@ export default function Home() {
     </div>
   );
 }
+
+/* ===== STYLES ===== */
 
 const styles = {
   page: {
@@ -150,7 +156,7 @@ const styles = {
   tabs: {
     display: "flex",
     justifyContent: "space-between",
-    maxWidth: "900px",
+    maxWidth: "1000px",
     margin: "0 auto 30px"
   },
   tab: {
@@ -175,14 +181,14 @@ const styles = {
     fontWeight: "bold"
   },
   content: {
-    maxWidth: "900px",
+    maxWidth: "1200px",
     margin: "0 auto"
   },
   card: {
     background: "#ffffff",
     color: "#333",
     borderRadius: "18px",
-    padding: "30px"
+    padding: "25px"
   },
   title: {
     textAlign: "center",
