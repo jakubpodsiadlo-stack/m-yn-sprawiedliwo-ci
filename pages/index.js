@@ -131,15 +131,21 @@ export default function Home() {
         {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
+            {/* LEWA TABELA - WYŚRODKOWANA Z OBRAMOWANIEM */}
             <div style={styles.sideCard}>
               <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>DZIAŁY</h3>
               <div style={{ overflowY: "auto", height: "calc(100% - 60px)" }}>
-                <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
+                <table style={{ 
+                  width: "100%", 
+                  fontSize: "14px", 
+                  borderCollapse: "collapse",
+                  border: "1px solid #ddd" 
+                }}>
                   <thead>
-                    <tr style={{ opacity: 0.6 }}>
-                      <th align="left">Dział</th>
-                      <th align="right">Dni</th>
-                      <th align="right">Śr.</th>
+                    <tr style={{ background: "#f8f9fa", borderBottom: "2px solid #ddd" }}>
+                      <th style={styles.tableHeader}>Dział</th>
+                      <th style={styles.tableHeader}>Dni</th>
+                      <th style={styles.tableHeader}>Śr.</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -160,9 +166,9 @@ export default function Home() {
                         })
                         .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
                         .map(r => (
-                          <tr key={r.dep} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                            <td style={{ padding: "8px 0" }}>{r.dep}</td>
-                            <td align="right" style={{ padding: "8px 0" }}>
+                          <tr key={r.dep} style={{ borderBottom: "1px solid #ddd" }}>
+                            <td style={styles.tableCell}>{r.dep}</td>
+                            <td style={styles.tableCell}>
                               <span style={{
                                 background: getDaysColor(r.daysAgo),
                                 padding: "2px 8px",
@@ -176,7 +182,7 @@ export default function Home() {
                                 {r.daysAgo ?? "—"}
                               </span>
                             </td>
-                            <td align="right" style={{ padding: "8px 0", fontWeight: "bold" }}>{r.avg}</td>
+                            <td style={{ ...styles.tableCell, fontWeight: "bold", color: "#1e3c72" }}>{r.avg}</td>
                           </tr>
                         ));
                     })()}
@@ -244,33 +250,19 @@ const styles = {
   content:{margin:"0 auto"},
   card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px"},
   title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
-  input:{
-    width:"100%",
-    height:"52px",
-    padding:"0 14px",
-    marginBottom:"16px",
-    borderRadius:"10px",
-    border:"1px solid #ccc",
-    boxSizing: "border-box" // Zapewnia identyczną szerokość pól
-  },
-  textarea:{
-    width:"100%",
-    height:"110px",
-    padding:"14px",
-    marginBottom:"20px",
-    borderRadius:"10px",
-    border:"1px solid #ccc",
-    boxSizing: "border-box", // Zapewnia identyczną szerokość pól
-    fontFamily: "inherit"
-  },
+  input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"16px",borderRadius:"10px",border:"1px solid #ccc",boxSizing: "border-box"},
+  textarea:{width:"100%",height:"110px",padding:"14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc",boxSizing: "border-box",fontFamily: "inherit"},
   submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff", cursor: "pointer"},
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
   dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
   sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333", display: "flex", flexDirection: "column"},
   centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px"},
-  sideTitle:{color:"#1e3c72",marginBottom:"16px"},
+  sideTitle:{color:"#1e3c72",marginBottom:"16px",fontWeight:"bold"},
   scrollArea: {flex: 1, overflowY: "auto", paddingRight: "10px"},
   historyItem: {marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px"},
-  commentBox:{marginTop:"4px",padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4",fontSize:"14px",wordBreak:"break-word",whiteSpace:"pre-wrap"}
+  commentBox:{marginTop:"4px",padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4",fontSize:"14px",wordBreak:"break-word",whiteSpace:"pre-wrap"},
+  // Nowe style dla tabeli:
+  tableHeader: { padding: "12px 5px", textAlign: "center", borderRight: "1px solid #ddd" },
+  tableCell: { padding: "10px 5px", textAlign: "center", borderRight: "1px solid #ddd" }
 };
