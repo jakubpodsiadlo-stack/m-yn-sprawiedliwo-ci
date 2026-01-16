@@ -4,6 +4,7 @@ import PieChart from "../components/PieChart";
 // ===== DZISIEJSZA DATA =====
 const today = () => new Date().toISOString().split("T")[0];
 
+// ===== DZIAŁY =====
 const DEPARTMENTS = [
   "CC",
   "HR",
@@ -94,6 +95,7 @@ export default function Home() {
 
       {/* ===== CONTENT ===== */}
       <div style={styles.content}>
+        {/* ===== FORM ===== */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -129,7 +131,7 @@ export default function Home() {
               </p>
 
               <div style={styles.scoreRow}>
-                {[1,2,3,4,5].map(n => (
+                {[1, 2, 3, 4, 5].map(n => (
                   <div
                     key={n}
                     onClick={() => setForm({ ...form, score: n })}
@@ -162,10 +164,17 @@ export default function Home() {
           </div>
         )}
 
+        {/* ===== WIZUALIZACJA ===== */}
         {tab === "chart" && (
           <div style={styles.card}>
             {audits.length > 0 ? (
-              <div style={{ maxWidth: "520px", margin: "0 auto" }}>
+              <div
+                style={{
+                  maxWidth: "560px",
+                  height: "560px", // 🔑 ważne dla wykresu
+                  margin: "0 auto"
+                }}
+              >
                 <PieChart audits={audits} />
               </div>
             ) : (
