@@ -31,8 +31,9 @@ export default function PieChart({ audits }) {
 
     grouped[a.department].count += 1;
     if (a.date) grouped[a.department].dates.push(new Date(a.date));
-    if (typeof a.score === "number" && !isNaN(a.score))
+    if (typeof a.score === "number" && !isNaN(a.score)) {
       grouped[a.department].scores.push(a.score);
+    }
   });
 
   const labels = Object.keys(grouped);
@@ -68,9 +69,9 @@ export default function PieChart({ audits }) {
     ]
   };
 
-  // ===== NAPRZEMIENNE TEKSTY =====
+  // ===== 3 WYSOKOŚCI TEKSTU =====
   const textPlugin = {
-    id: "alternatingText",
+    id: "tripleHeightText",
     afterDraw(chart) {
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
@@ -87,9 +88,9 @@ export default function PieChart({ audits }) {
         // ❌ za mały segment – nie rysujemy
         if (angleSize < 0.12) return;
 
-        // 🔀 CO DRUGI SEGMENT – INNY PROMIEŃ
-        const radiusFactor = i % 2 === 0 ? 0.85 : 0.70;
-        const r = arc.outerRadius * radiusFactor;
+        // 🔀 3 poziomy promienia (powtarzalne)
+        const radiusLevels = [0.50, 0.65, 0.90];
+        const r = arc.outerRadius * radiusLevels[i % 3];
 
         const x = arc.x + Math.cos(angle) * r;
         const y = arc.y + Math.sin(angle) * r;
