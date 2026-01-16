@@ -1,149 +1,288 @@
-import { Doughnut } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend
-} from "chart.js";
+import { useEffect, useState } from "react";
+import PieChart from "../components/PieChart";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+// ===== DZISIEJSZA DATA =====
+const today = () => new Date().toISOString().split("T")[0];
 
-// ===== KOLOR NA PODSTAWIE ŚREDNIEJ OCENY =====
-const getColorByAvg = (avg) => {
-  if (avg <= 1) return "#1b5e20";   // mocno zielony
-  if (avg <= 2) return "#66bb6a";   // jasnozielony
-  if (avg <= 3) return "#fbc02d";   // złoty
-  if (avg <= 4) return "#ef5350";   // jasnoczerwony
-  return "#b71c1c";                 // czerwony
-};
+// ===== DZIAŁY =====
+const DEPARTMENTS = [
+  "CC",
+  "HR",
+  "KADRY",
+  "KSIĘGOWOŚĆ",
+  "PH MATEUSZ HOWIS",
+  "PH BARTŁOMIEJ JĘDRZEJEC",
+  "PH SYLWESTER KAWALEC",
+  "PH JAN DYDUCH",
+  "PH ALEKSANDER ZAGAJEWSKI",
+  "PH DAWID KANIA",
+  "PH BARTOSZ SIEDLECKI",
+  "PH JAKUB HARASIMOWICZ",
+  "PRĄD DLA BIZNESU",
+  "SZKOLENIA",
+  "ADMINISTRATOR",
+  "KONTROLA JAKOŚCI CC",
+  "KONTROLA JAKOŚCI PH",
+  "MAGAZYNY",
+  "RETENCJA",
+  "TERMO",
+  "DZIAŁ DOTACJI I ZGŁOSZEŃ ZE",
+  "DZIAŁ OBSŁUGI KLIENTA",
+  "DZIAŁ ZAKUPÓW",
+  "FAKTURY",
+  "KREDYTY",
+  "MARKETING",
+  "PV"
+];
 
-export default function PieChart({ audits }) {
-  const grouped = {};
-
-  // ===== GRUPOWANIE DANYCH =====
-  audits.forEach(a => {
-    if (!grouped[a.department]) {
-      grouped[a.department] = {
-        count: 0,
-        dates: [],
-        scores: []
-      };
-    }
-
-    grouped[a.department].count += 1;
-
-    if (a.date) {
-      grouped[a.department].dates.push(new Date(a.date));
-    }
-
-    // 🔒 ZABEZPIECZENIE: tylko poprawne liczby
-    if (typeof a.score === "number" && !isNaN(a.score)) {
-      grouped[a.department].scores.push(a.score);
-    }
+export default function Home() {
+  const [tab, setTab] = useState("form");
+  const [audits, setAudits] = useState([]);
+  const [form, setForm] = useState({
+    department: DEPARTMENTS[0],
+    date: today(),
+    score: 3,
+    comment: ""
   });
 
-  const labels = Object.keys(grouped);
-
-  // ===== METRYKI =====
-  const metrics = labels.map(dep => {
-    const dates = grouped[dep].dates.sort((a, b) => b - a);
-    const scores = grouped[dep].scores;
-
-    const avg =
-      scores.length > 0
-        ? scores.reduce((a, b) => a + b, 0) / scores.length
-        : 5; // 🚨 brak danych = czerwony alarm
-
-    return {
-      name: dep,
-      count: grouped[dep].count,
-      lastDate: dates.length > 0
-        ? dates[0].toISOString().split("T")[0]
-        : "brak daty",
-      avg,
-      color: getColorByAvg(avg)
-    };
-  });
-
-  // ===== DANE WYKRESU =====
-  const data = {
-    labels,
-    datasets: [
-      {
-        data: metrics.map(m => m.count),
-        backgroundColor: metrics.map(m => m.color),
-        borderColor: "#ffffff",
-        borderWidth: 2,
-        hoverOffset: 20
-      }
-    ]
+  // ===== LOAD AUDITS =====
+  const load = async () => {
+    const res = await fetch("/api/audits");
+    setAudits(await res.json());
   };
 
-  // ===== TEKST NA SEGMENTACH =====
-  const segmentTextPlugin = {
-    id: "segmentText",
-    afterDraw(chart) {
-      const { ctx } = chart;
-      const meta = chart.getDatasetMeta(0);
+  useEffect(() => {
+    load();
+  }, []);
 
-      ctx.save();
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+  // ===== SUBMIT =====
+  const submit = async () => {
+    await fetch("/api/audits", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    });
 
-      meta.data.forEach((arc, i) => {
-        const angle =
-          (arc.startAngle + arc.endAngle) / 2;
+    setForm({
+      department: DEPARTMENTS[0],
+      date: today(),
+      score: 3,
+      comment: ""
+    });
 
-        const radius = arc.outerRadius * 0.75;
-
-        const x = arc.x + Math.cos(angle) * radius;
-        const y = arc.y + Math.sin(angle) * radius;
-
-        ctx.fillStyle = "#ffffff";
-
-        ctx.font = "bold 16px sans-serif";
-        ctx.fillText(metrics[i].name, x, y - 20);
-
-        ctx.font = "bold 13px sans-serif";
-        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
-
-        ctx.font = "13px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 20);
-      });
-
-      ctx.restore();
-    }
-  };
-
-  // ===== OPCJE =====
-  const options = {
-    cutout: 0, // pełne koło
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false, // stabilność
-    layout: {
-      padding: {
-        top: 20,
-        bottom: 20,
-        left: 20,
-        right: 20
-      }
-    },
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        enabled: true
-      }
-    }
+    load();
+    // ❌ brak automatycznego przełączania
   };
 
   return (
-    <Doughnut
-      data={data}
-      options={options}
-      plugins={[segmentTextPlugin]}
-    />
+    <div style={styles.page}>
+      {/* ===== ZAKŁADKI ===== */}
+      <div style={styles.tabs}>
+        <button
+          onClick={() => setTab("form")}
+          style={tab === "form" ? styles.activeTab : styles.tab}
+        >
+          📝 WPROWADŹ AUDYT
+        </button>
+
+        <button
+          onClick={() => setTab("chart")}
+          style={tab === "chart" ? styles.activeTab : styles.tab}
+        >
+          📊 WIZUALIZACJA
+        </button>
+      </div>
+
+      {/* ===== CONTENT ===== */}
+      <div style={styles.content}>
+        {/* ===== FORM ===== */}
+        {tab === "form" && (
+          <div style={styles.card}>
+            <h2 style={styles.title}>NOWY AUDYT</h2>
+
+            <select
+              value={form.department}
+              onChange={e =>
+                setForm({ ...form, department: e.target.value })
+              }
+              style={styles.input}
+            >
+              {DEPARTMENTS.map(d => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+
+            <input
+              type="date"
+              value={form.date}
+              onChange={e =>
+                setForm({ ...form, date: e.target.value })
+              }
+              style={styles.input}
+            />
+
+            {/* ===== POZIOM NIEZADOWOLENIA ===== */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontWeight: "bold", marginBottom: "4px" }}>
+                Poziom niezadowolenia: {form.score}
+              </p>
+              <p style={{ fontSize: "12px", opacity: 0.6, marginBottom: "10px" }}>
+                1 = bardzo dobrze · 5 = bardzo źle
+              </p>
+
+              <div style={styles.scoreRow}>
+                {[1, 2, 3, 4, 5].map(n => (
+                  <div
+                    key={n}
+                    onClick={() => setForm({ ...form, score: n })}
+                    style={{
+                      ...styles.scoreBox,
+                      background:
+                        form.score === n ? "#1e3c72" : "#e0e0e0",
+                      color:
+                        form.score === n ? "#fff" : "#333"
+                    }}
+                  >
+                    {n}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <textarea
+              placeholder="Komentarz"
+              value={form.comment}
+              onChange={e =>
+                setForm({ ...form, comment: e.target.value })
+              }
+              style={styles.textarea}
+            />
+
+            <button onClick={submit} style={styles.submit}>
+              Dodaj audyt
+            </button>
+          </div>
+        )}
+
+        {/* ===== WIZUALIZACJA ===== */}
+        {tab === "chart" && (
+          <div style={styles.card}>
+            {audits.length > 0 ? (
+              <div
+                style={{
+                  maxWidth: "620px",
+                  height: "620px",
+                  margin: "0 auto"
+                }}
+              >
+                <PieChart audits={audits} />
+              </div>
+            ) : (
+              <p>Brak danych do wizualizacji</p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
+
+/* ===== STYLES ===== */
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+    padding: "40px",
+    color: "#fff"
+  },
+  tabs: {
+    display: "flex",
+    justifyContent: "space-between",
+    maxWidth: "900px",
+    margin: "0 auto 30px"
+  },
+  tab: {
+    width: "48%",
+    height: "56px",
+    fontSize: "18px",
+    borderRadius: "14px",
+    border: "none",
+    cursor: "pointer",
+    background: "rgba(255,255,255,0.25)",
+    color: "#fff"
+  },
+  activeTab: {
+    width: "48%",
+    height: "56px",
+    fontSize: "18px",
+    borderRadius: "14px",
+    border: "none",
+    cursor: "pointer",
+    background: "#ffffff",
+    color: "#1e3c72",
+    fontWeight: "bold"
+  },
+  content: {
+    maxWidth: "900px",
+    margin: "0 auto"
+  },
+  card: {
+    background: "#ffffff",
+    color: "#333",
+    borderRadius: "18px",
+    padding: "30px"
+  },
+  title: {
+    textAlign: "center",
+    letterSpacing: "2px",
+    marginBottom: "25px",
+    color: "#1e3c72"
+  },
+  input: {
+    width: "100%",
+    height: "48px",
+    padding: "0 12px",
+    marginBottom: "15px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    lineHeight: "48px",
+    boxSizing: "border-box"
+  },
+  textarea: {
+    width: "100%",
+    height: "90px",
+    padding: "12px",
+    marginBottom: "15px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    boxSizing: "border-box",
+    resize: "none"
+  },
+  submit: {
+    width: "100%",
+    height: "52px",
+    borderRadius: "12px",
+    border: "none",
+    background: "#1e3c72",
+    color: "#fff",
+    fontSize: "16px",
+    cursor: "pointer"
+  },
+  scoreRow: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  scoreBox: {
+    width: "18%",
+    height: "48px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    userSelect: "none",
+    boxSizing: "border-box"
+  }
+};
