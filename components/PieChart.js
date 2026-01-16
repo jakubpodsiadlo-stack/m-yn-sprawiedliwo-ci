@@ -84,7 +84,7 @@ export default function PieChart({ audits }) {
 
       meta.data.forEach((arc, i) => {
         const angle = (arc.startAngle + arc.endAngle) / 2;
-        const r = arc.outerRadius * 0.65;
+        const r = arc.outerRadius * 0.9;
 
         const x = arc.x + Math.cos(angle) * r;
         const y = arc.y + Math.sin(angle) * r;
