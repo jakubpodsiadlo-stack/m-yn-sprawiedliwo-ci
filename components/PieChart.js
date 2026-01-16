@@ -57,7 +57,7 @@ export default function PieChart({ audits }) {
         backgroundColor: colors,
         borderColor: "#fff",
         borderWidth: 2,
-        hoverOffset: 12 // <<< „wyskakiwanie” segmentu
+        hoverOffset: 14
       }
     ]
   };
@@ -88,14 +88,21 @@ export default function PieChart({ audits }) {
 
         const isActive = i === active;
 
-        ctx.fillStyle = "#fff";
-        ctx.font = isActive
-          ? "bold 14px sans-serif"
-          : "bold 10px sans-serif";
+        // 🔥 WIĘKSZE FONTY + WIĘCEJ ODSTĘPU
+        const titleSize = isActive ? 18 : 14;
+        const textSize = isActive ? 14 : 12;
+        const spacing = isActive ? 18 : 14;
 
-        ctx.fillText(metrics[i].name, x, y - 12);
+        ctx.fillStyle = "#fff";
+
+        ctx.font = `bold ${titleSize}px sans-serif`;
+        ctx.fillText(metrics[i].name, x, y - spacing);
+
+        ctx.font = `bold ${textSize}px sans-serif`;
         ctx.fillText(`Śr: ${metrics[i].avg}`, x, y);
-        ctx.fillText(metrics[i].date, x, y + 12);
+
+        ctx.font = `${textSize}px sans-serif`;
+        ctx.fillText(metrics[i].date, x, y + spacing);
       });
 
       ctx.restore();
@@ -103,7 +110,7 @@ export default function PieChart({ audits }) {
   };
 
   const options = {
-    cutout: "60%",
+    cutout: "58%",
     plugins: {
       legend: { position: "bottom" },
       tooltip: { enabled: true }
