@@ -59,7 +59,6 @@ export default function Home() {
 
       {/* ZAWARTOŚĆ */}
       <div style={styles.content}>
-        {/* FORMULARZ */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -81,13 +80,15 @@ export default function Home() {
             <input
               type="date"
               value={form.date}
-              onChange={e => setForm({ ...form, date: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, date: e.target.value })
+              }
               style={styles.input}
             />
 
             {/* SKALA 1–10 */}
             <div style={{ marginBottom: "20px" }}>
-              <p style={{ marginBottom: "8px", fontWeight: "bold" }}>
+              <p style={{ fontWeight: "bold" }}>
                 Ocena: {form.score}
               </p>
 
@@ -125,7 +126,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* WIZUALIZACJA */}
         {tab === "chart" && (
           <div style={styles.card}>
             {audits.length > 0 ? (
@@ -139,8 +139,6 @@ export default function Home() {
     </div>
   );
 }
-
-/* ================= STYLES ================= */
 
 const styles = {
   page: {
