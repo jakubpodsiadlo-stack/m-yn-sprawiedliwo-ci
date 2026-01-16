@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import PieChart from "../components/PieChart";
 
-// ===== DZISIEJSZA DATA =====
 const today = () => new Date().toISOString().split("T")[0];
 
-// ===== DZIAŁY =====
 const DEPARTMENTS = [
   "CC",
   "HR",
@@ -45,7 +43,6 @@ export default function Home() {
     comment: ""
   });
 
-  // ===== LOAD AUDITS =====
   const load = async () => {
     const res = await fetch("/api/audits");
     setAudits(await res.json());
@@ -55,7 +52,6 @@ export default function Home() {
     load();
   }, []);
 
-  // ===== SUBMIT =====
   const submit = async () => {
     await fetch("/api/audits", {
       method: "POST",
@@ -71,12 +67,11 @@ export default function Home() {
     });
 
     load();
-    // ❌ brak automatycznego przełączania
   };
 
   return (
     <div style={styles.page}>
-      {/* ===== ZAKŁADKI ===== */}
+      {/* ZAKŁADKI */}
       <div style={styles.tabs}>
         <button
           onClick={() => setTab("form")}
@@ -93,9 +88,8 @@ export default function Home() {
         </button>
       </div>
 
-      {/* ===== CONTENT ===== */}
       <div style={styles.content}>
-        {/* ===== FORM ===== */}
+        {/* FORM */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -121,12 +115,11 @@ export default function Home() {
               style={styles.input}
             />
 
-            {/* ===== POZIOM NIEZADOWOLENIA ===== */}
             <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontWeight: "bold", marginBottom: "4px" }}>
+              <p style={{ fontWeight: "bold" }}>
                 Poziom niezadowolenia: {form.score}
               </p>
-              <p style={{ fontSize: "12px", opacity: 0.6, marginBottom: "10px" }}>
+              <p style={{ fontSize: "12px", opacity: 0.6 }}>
                 1 = bardzo dobrze · 5 = bardzo źle
               </p>
 
@@ -164,30 +157,24 @@ export default function Home() {
           </div>
         )}
 
-        {/* ===== WIZUALIZACJA ===== */}
+        {/* WIZUALIZACJA */}
         {tab === "chart" && (
           <div style={styles.card}>
-            {audits.length > 0 ? (
-              <div
-                style={{
-                  maxWidth: "620px",
-                  height: "800px",
-                  margin: "0 auto"
-                }}
-              >
-                <PieChart audits={audits} />
-              </div>
-            ) : (
-              <p>Brak danych do wizualizacji</p>
-            )}
+            <div
+              style={{
+                width: "100%",
+                height: "85vh",
+                maxHeight: "900px"
+              }}
+            >
+              <PieChart audits={audits} />
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-/* ===== STYLES ===== */
 
 const styles = {
   page: {
@@ -224,19 +211,18 @@ const styles = {
     fontWeight: "bold"
   },
   content: {
-    maxWidth: "900px",
+    maxWidth: "1200px",
     margin: "0 auto"
   },
   card: {
     background: "#ffffff",
     color: "#333",
     borderRadius: "18px",
-    padding: "30px"
+    padding: "12px"
   },
   title: {
     textAlign: "center",
-    letterSpacing: "2px",
-    marginBottom: "25px",
+    marginBottom: "20px",
     color: "#1e3c72"
   },
   input: {
@@ -245,9 +231,7 @@ const styles = {
     padding: "0 12px",
     marginBottom: "15px",
     borderRadius: "8px",
-    border: "1px solid #ccc",
-    lineHeight: "48px",
-    boxSizing: "border-box"
+    border: "1px solid #ccc"
   },
   textarea: {
     width: "100%",
@@ -256,7 +240,6 @@ const styles = {
     marginBottom: "15px",
     borderRadius: "8px",
     border: "1px solid #ccc",
-    boxSizing: "border-box",
     resize: "none"
   },
   submit: {
@@ -281,8 +264,6 @@ const styles = {
     justifyContent: "center",
     borderRadius: "8px",
     cursor: "pointer",
-    fontWeight: "bold",
-    userSelect: "none",
-    boxSizing: "border-box"
+    fontWeight: "bold"
   }
 };
