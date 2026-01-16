@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Pie } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// KOLORY DZIAŁÓW
 const COLORS = {
   Produkcja: "#1e3c72",
   HR: "#2e7d32",
@@ -16,7 +15,6 @@ const COLORS = {
 export default function PieChart({ audits }) {
   const [selected, setSelected] = useState(null);
 
-  // grupowanie per dział
   const grouped = {};
   audits.forEach(a => {
     if (!grouped[a.department]) {
@@ -39,7 +37,8 @@ export default function PieChart({ audits }) {
       {
         data: values,
         backgroundColor: colors,
-        borderWidth: 2
+        borderWidth: 2,
+        cutout: "65%" // <<< KLUCZ
       }
     ]
   };
@@ -53,13 +52,12 @@ export default function PieChart({ audits }) {
     },
     plugins: {
       legend: {
-        position: "bottom"
+        position: "top"
       }
     }
   };
 
-  // dane do środka
-  let centerText = "Kliknij dział";
+  let center = "Kliknij dział";
   if (selected) {
     const scores = grouped[selected].scores;
     const avg =
@@ -70,14 +68,14 @@ export default function PieChart({ audits }) {
       .toISOString()
       .split("T")[0];
 
-    centerText = `${selected}\nŚr.: ${avg.toFixed(2)}\nOstatni: ${lastDate}`;
+    center = `${selected}\nŚrednia: ${avg.toFixed(2)}\nOstatni: ${lastDate}`;
   }
 
   return (
     <div style={{ position: "relative" }}>
-      <Pie data={data} options={options} />
+      <Doughnut data={data} options={options} />
 
-      {/* ŚRODEK KOŁA */}
+      {/* ŚRODEK */}
       <div
         style={{
           position: "absolute",
@@ -85,12 +83,12 @@ export default function PieChart({ audits }) {
           left: "50%",
           transform: "translate(-50%, -50%)",
           textAlign: "center",
-          pointerEvents: "none",
           fontWeight: "bold",
-          whiteSpace: "pre-line"
+          whiteSpace: "pre-line",
+          pointerEvents: "none"
         }}
       >
-        {centerText}
+        {center}
       </div>
     </div>
   );
