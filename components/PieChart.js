@@ -1,9 +1,13 @@
 import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend
+} from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// KOLORY DZIAŁÓW
 const COLORS = {
   Produkcja: "#1e3c72",
   HR: "#2e7d32",
@@ -13,7 +17,7 @@ const COLORS = {
 };
 
 export default function PieChart({ audits }) {
-  // === GRUPOWANIE DANYCH ===
+  // ===== GRUPOWANIE =====
   const grouped = {};
   audits.forEach(a => {
     if (!grouped[a.department]) {
@@ -27,7 +31,6 @@ export default function PieChart({ audits }) {
   const values = labels.map(l => grouped[l].scores.length);
   const colors = labels.map(l => COLORS[l] || "#999");
 
-  // === METRYKI PER DZIAŁ ===
   const metrics = labels.map(dep => {
     const scores = grouped[dep].scores;
     const avg =
@@ -39,12 +42,13 @@ export default function PieChart({ audits }) {
       .split("T")[0];
 
     return {
+      name: dep,
       avg: avg.toFixed(1),
       date: lastDate
     };
   });
 
-  // === WYKRES ===
+  // ===== WYKRES =====
   const data = {
     labels,
     datasets: [
@@ -52,28 +56,28 @@ export default function PieChart({ audits }) {
         data: values,
         backgroundColor: colors,
         borderColor: "#fff",
-        borderWidth: 2
+        borderWidth: 2,
+        hoverOffset: 12 // <<< „wyskakiwanie” segmentu
       }
     ]
   };
 
-  // === PLUGIN RYSUJĄCY TEKST NA SEGMENTACH ===
+  // ===== PLUGIN TEKSTU =====
   const segmentTextPlugin = {
     id: "segmentText",
     afterDraw(chart) {
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
+      const active =
+        chart.tooltip?.dataPoints?.[0]?.dataIndex;
 
       ctx.save();
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 12px sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
         const angle =
           (arc.startAngle + arc.endAngle) / 2;
-
         const radius =
           (arc.outerRadius + arc.innerRadius) / 2;
 
@@ -82,8 +86,16 @@ export default function PieChart({ audits }) {
         const y =
           arc.y + Math.sin(angle) * radius;
 
-        ctx.fillText(`Śr: ${metrics[i].avg}`, x, y - 7);
-        ctx.fillText(metrics[i].date, x, y + 7);
+        const isActive = i === active;
+
+        ctx.fillStyle = "#fff";
+        ctx.font = isActive
+          ? "bold 14px sans-serif"
+          : "bold 10px sans-serif";
+
+        ctx.fillText(metrics[i].name, x, y - 12);
+        ctx.fillText(`Śr: ${metrics[i].avg}`, x, y);
+        ctx.fillText(metrics[i].date, x, y + 12);
       });
 
       ctx.restore();
@@ -93,7 +105,8 @@ export default function PieChart({ audits }) {
   const options = {
     cutout: "60%",
     plugins: {
-      legend: { position: "bottom" }
+      legend: { position: "bottom" },
+      tooltip: { enabled: true }
     }
   };
 
@@ -105,4 +118,3 @@ export default function PieChart({ audits }) {
     />
   );
 }
-
