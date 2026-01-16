@@ -76,17 +76,35 @@ export default function Home() {
   if (!isLoggedIn) {
     return (
       <div style={styles.page}>
-        {/* DUŻY BŁĘKITNY MŁYN */}
+        {/* POPRAWIONY BŁĘKITNY MŁYN ZE ZDJĘCIA */}
         <div style={styles.logoContainer}>
-          <svg viewBox="0 0 24 24" style={styles.millIcon} fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M12 12V3L19 7L12 12Z" fill="#add8e6" />
-            <path d="M12 12H21L17 19L12 12Z" fill="#87ceeb" />
-            <path d="M12 12V21L5 17L12 12Z" fill="#add8e6" />
-            <path d="M12 12H3L7 5L12 12Z" fill="#87ceeb" />
-            <circle cx="12" cy="12" r="1.5" fill="#1e3c72" />
-            <path d="M8 22H16M12 21V12" stroke="#fff" strokeLinecap="round" />
+          <svg viewBox="0 0 100 100" style={styles.millIcon}>
+             {/* Kontur zewnętrzny (biały/jasny) */}
+             <path 
+               d="M50 10 L85 45 L80 85 L20 85 L15 45 Z" 
+               fill="none" 
+               stroke="white" 
+               strokeWidth="6" 
+               strokeLinejoin="round" 
+             />
+             {/* Bryła młyna */}
+             <path 
+               d="M50 10 L85 45 L80 85 L20 85 L15 45 Z" 
+               fill="#4fc3f7" 
+             />
+             {/* Skrzydła młyna (ikona w stylu X) */}
+             <g stroke="white" strokeWidth="6" strokeLinecap="round">
+               <line x1="20" y1="25" x2="80" y2="65" />
+               <line x1="80" y1="25" x2="20" y2="65" />
+             </g>
+             {/* Kółko na środku skrzydeł */}
+             <circle cx="50" cy="45" r="5" fill="#4fc3f7" stroke="white" strokeWidth="3" />
+             {/* Wejście/Drzwi */}
+             <path d="M42 85 V70 Q50 62 58 70 V85" fill="#01579b" />
           </svg>
-          <h1 style={{ color: '#add8e6', marginTop: '10px', fontSize: '24px', letterSpacing: '2px' }}>BŁĘKITNY MŁYN</h1>
+          <h1 style={{ color: 'white', marginTop: '20px', fontSize: '28px', fontWeight: 'bold', letterSpacing: '3px' }}>
+            BŁĘKITNY MŁYN
+          </h1>
         </div>
 
         <div style={styles.loginCard}>
@@ -117,7 +135,6 @@ export default function Home() {
     );
   }
 
-  // GŁÓWNA APLIKACJA PO ZALOGOWANIU
   return (
     <div style={styles.page}>
       <div style={styles.tabs}>
@@ -281,9 +298,9 @@ export default function Home() {
 
 const styles = {
   page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"},
-  logoContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '30px' },
-  millIcon: { width: '120px', height: '120px', filter: 'drop-shadow(0 0 10px rgba(173, 216, 230, 0.5))' },
-  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "18px", width: "100%", maxWidth: "400px", boxShadow: "0 10px 25px rgba(0,0,0,0.3)"},
+  logoContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' },
+  millIcon: { width: '160px', height: '160px' },
+  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "18px", width: "100%", maxWidth: "420px", boxShadow: "0 15px 35px rgba(0,0,0,0.4)"},
   label: {display: "block", marginBottom: "8px", fontWeight: "bold", color: "#1e3c72"},
   tabs:{display:"flex",justifyContent:"space-between",width:"100%",maxWidth:"900px",margin:"0 auto 30px"},
   tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff", cursor:"pointer"},
