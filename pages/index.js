@@ -15,7 +15,12 @@ const DEPARTMENTS = [
   "KREDYTY","MARKETING","PV"
 ];
 
+const USERS = ["PRZEMYSŁAW DERDAŚ"]; // Lista uprawnionych loginów
+
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginForm, setLoginForm] = useState({ user: USERS[0], pass: "" });
+  
   const [tab, setTab] = useState("form");
   const [audits, setAudits] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -32,8 +37,17 @@ export default function Home() {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    if (isLoggedIn) load();
+  }, [isLoggedIn]);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginForm.user === "PRZEMYSŁAW DERDAŚ" && loginForm.pass === "POWERUSER") {
+      setIsLoggedIn(true);
+    } else {
+      alert("Błędne hasło!");
+    }
+  };
 
   const submit = async () => {
     await fetch("/api/audits", {
@@ -65,9 +79,41 @@ export default function Home() {
     return "#d4edda";
   };
 
+  // EKRAN LOGOWANIA
+  if (!isLoggedIn) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.loginCard}>
+          <h2 style={styles.title}>LOGOWANIE</h2>
+          <form onSubmit={handleLogin}>
+            <label style={styles.label}>Użytkownik:</label>
+            <select 
+              style={styles.input}
+              value={loginForm.user}
+              onChange={e => setLoginForm({...loginForm, user: e.target.value})}
+            >
+              {USERS.map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+            
+            <label style={styles.label}>Hasło:</label>
+            <input 
+              type="password"
+              style={styles.input}
+              value={loginForm.pass}
+              onChange={e => setLoginForm({...loginForm, pass: e.target.value})}
+              placeholder="Wpisz hasło"
+            />
+            
+            <button type="submit" style={styles.submit}>Zaloguj się</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // GŁÓWNA APLIKACJA PO ZALOGOWANIU
   return (
     <div style={styles.page}>
-      {/* ZAKŁADKI */}
       <div style={styles.tabs}>
         <button onClick={() => setTab("form")} style={tab === "form" ? styles.activeTab : styles.tab}>
           📝 WPROWADŹ AUDYT
@@ -77,13 +123,10 @@ export default function Home() {
         </button>
       </div>
 
-      {/* CONTENT */}
       <div style={styles.content}>
-        {/* FORM */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
-
             <select
               value={form.department}
               onChange={e => setForm({ ...form, department: e.target.value })}
@@ -91,16 +134,13 @@ export default function Home() {
             >
               {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
             </select>
-
             <input
               type="date"
               value={form.date}
               onChange={e => setForm({ ...form, date: e.target.value })}
               style={styles.input}
             />
-
             <p style={{ fontWeight: "bold" }}>Poziom niezadowolenia: {form.score}</p>
-
             <div style={styles.scoreRow}>
               {[1,2,3,4,5].map(n => (
                 <div
@@ -116,30 +156,22 @@ export default function Home() {
                 </div>
               ))}
             </div>
-
             <textarea
               placeholder="Komentarz"
               value={form.comment}
               onChange={e => setForm({ ...form, comment: e.target.value })}
               style={styles.textarea}
             />
-
             <button onClick={submit} style={styles.submit}>Dodaj audyt</button>
           </div>
         )}
 
-        {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
             <div style={styles.sideCard}>
               <h3 style={{ ...styles.sideTitle, textAlign: "center" }}>DZIAŁY</h3>
               <div style={{ overflowY: "auto", height: "calc(100% - 60px)" }}>
-                <table style={{ 
-                  width: "100%", 
-                  fontSize: "14px", 
-                  borderCollapse: "collapse",
-                  border: "1px solid #ddd" 
-                }}>
+                <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse", border: "1px solid #ddd" }}>
                   <thead>
                     <tr style={{ background: "#f8f9fa", borderBottom: "2px solid #ddd" }}>
                       <th style={styles.tableHeader}>Dział</th>
@@ -242,34 +274,18 @@ export default function Home() {
 }
 
 const styles = {
-  page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff"},
-  tabs:{display:"flex",justifyContent:"space-between",maxWidth:"900px",margin:"0 auto 30px"},
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"},
+  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "18px", width: "100%", maxWidth: "400px", boxShadow: "0 10px 25px rgba(0,0,0,0.3)"},
+  label: {display: "block", marginBottom: "8px", fontWeight: "bold", color: "#1e3c72"},
+  tabs:{display:"flex",justifyContent:"space-between",width:"100%",maxWidth:"900px",margin:"0 auto 30px"},
   tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff", cursor:"pointer"},
   activeTab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"#fff",color:"#1e3c72",fontWeight:"bold", cursor:"pointer"},
-  content:{margin:"0 auto"},
-  card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px"},
+  content:{width: "100%"},
+  card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px", maxWidth: "800px", margin: "0 auto"},
   title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
-  input:{
-    width:"100%",
-    height:"52px",
-    padding:"0 14px",
-    marginBottom:"16px",
-    borderRadius:"10px",
-    border:"1px solid #ccc",
-    boxSizing: "border-box"
-  },
-  textarea:{
-    width:"100%",
-    height:"110px",
-    padding:"14px",
-    marginBottom:"20px",
-    borderRadius:"10px",
-    border:"1px solid #ccc",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-    resize: "none" // BLOKADA ROZCIĄGANIA POLA
-  },
-  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff", cursor: "pointer"},
+  input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"16px",borderRadius:"10px",border:"1px solid #ccc",boxSizing: "border-box"},
+  textarea:{width:"100%",height:"110px",padding:"14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc",boxSizing: "border-box",fontFamily: "inherit",resize: "none"},
+  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff", cursor: "pointer", fontWeight: "bold"},
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
   dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
