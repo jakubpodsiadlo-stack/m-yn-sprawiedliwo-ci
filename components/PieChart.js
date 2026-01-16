@@ -18,10 +18,7 @@ export default function PieChart({ audits }) {
   const grouped = {};
   audits.forEach(a => {
     if (!grouped[a.department]) {
-      grouped[a.department] = {
-        scores: [],
-        dates: []
-      };
+      grouped[a.department] = { scores: [], dates: [] };
     }
     grouped[a.department].scores.push(a.score);
     grouped[a.department].dates.push(new Date(a.date));
@@ -37,31 +34,28 @@ export default function PieChart({ audits }) {
       {
         data: values,
         backgroundColor: colors,
-        borderWidth: 2,
-        cutout: "65%" // <<< KLUCZ
+        borderColor: "#ffffff",
+        borderWidth: 2
       }
     ]
   };
 
   const options = {
+    cutout: "65%", // ⬅⬅⬅ KLUCZ
     onClick: (_, elements) => {
       if (elements.length > 0) {
-        const index = elements[0].index;
-        setSelected(labels[index]);
+        setSelected(labels[elements[0].index]);
       }
     },
     plugins: {
-      legend: {
-        position: "top"
-      }
+      legend: { position: "top" }
     }
   };
 
   let center = "Kliknij dział";
   if (selected) {
     const scores = grouped[selected].scores;
-    const avg =
-      scores.reduce((a, b) => a + b, 0) / scores.length;
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
 
     const lastDate = grouped[selected].dates
       .sort((a, b) => b - a)[0]
@@ -75,7 +69,6 @@ export default function PieChart({ audits }) {
     <div style={{ position: "relative" }}>
       <Doughnut data={data} options={options} />
 
-      {/* ŚRODEK */}
       <div
         style={{
           position: "absolute",
