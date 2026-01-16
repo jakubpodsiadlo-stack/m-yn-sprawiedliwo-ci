@@ -18,6 +18,7 @@ const DEPARTMENTS = [
 const USERS = ["PRZEMYSŁAW DERDAŚ"];
 
 export default function Home() {
+  // Sprawdzanie localStorage przy inicjalizacji
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({ user: USERS[0], pass: "" });
   
@@ -25,28 +26,42 @@ export default function Home() {
   const [audits, setAudits] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [form, setForm] = useState({
-    department: "", // Startujemy z pustym polem
+    department: "",
     date: today(),
     score: 3,
     comment: ""
   });
+
+  // Efekt sprawdzający sesję przy starcie
+  useEffect(() => {
+    const savedSession = localStorage.getItem("isLoggedIn");
+    if (savedSession === "true") {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) load();
+  }, [isLoggedIn]);
 
   const load = async () => {
     const res = await fetch("/api/audits");
     setAudits(await res.json());
   };
 
-  useEffect(() => {
-    if (isLoggedIn) load();
-  }, [isLoggedIn]);
-
   const handleLogin = (e) => {
     e.preventDefault();
     if (loginForm.user === "PRZEMYSŁAW DERDAŚ" && loginForm.pass === "POWERUSER") {
       setIsLoggedIn(true);
+      localStorage.setItem("isLoggedIn", "true"); // Zapisanie sesji
     } else {
       alert("Błędne hasło!");
     }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("isLoggedIn"); // Usunięcie sesji
   };
 
   const submit = async () => {
@@ -54,7 +69,6 @@ export default function Home() {
       alert("Proszę najpierw wybrać dział!");
       return;
     }
-
     await fetch("/api/audits", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,21 +128,20 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      <div style={styles.tabs}>
-        <button onClick={() => setTab("form")} style={tab === "form" ? styles.activeTab : styles.tab}>📝 WPROWADŹ AUDYT</button>
-        <button onClick={() => setTab("chart")} style={tab === "chart" ? styles.activeTab : styles.tab}>📊 WIZUALIZACJA</button>
+      {/* PASEK NAWIGACJI Z WYLOGOWANIEM */}
+      <div style={styles.navBar}>
+        <div style={styles.tabsWrapper}>
+          <button onClick={() => setTab("form")} style={tab === "form" ? styles.activeTab : styles.tab}>📝 WPROWADŹ AUDYT</button>
+          <button onClick={() => setTab("chart")} style={tab === "chart" ? styles.activeTab : styles.tab}>📊 WIZUALIZACJA</button>
+        </div>
+        <button onClick={handleLogout} style={styles.logoutBtn}>🚪 WYLOGUJ</button>
       </div>
 
       <div style={styles.content}>
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
-            <select
-              value={form.department}
-              onChange={e => setForm({ ...form, department: e.target.value })}
-              style={styles.input}
-            >
-              {/* NOWY KAFELEK WYBORU */}
+            <select value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} style={styles.input}>
               <option value="" disabled>--- WYBIERZ DZIAŁ ---</option>
               {DEPARTMENTS.sort().map(d => <option key={d} value={d}>{d}</option>)}
             </select>
@@ -158,30 +171,24 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(() => {
+                    {Object.entries(audits.reduce((acc, a) => {
+                      if (!acc[a.department]) acc[a.department] = { dates: [], scores: [] };
+                      if (a.date) acc[a.department].dates.push(new Date(a.date));
+                      if (typeof a.score === "number") acc[a.department].scores.push(a.score);
+                      return acc;
+                    }, {})).map(([dep, d]) => {
                       const todayD = new Date();
-                      const grouped = {};
-                      audits.forEach(a => {
-                        if (!grouped[a.department]) grouped[a.department] = { dates: [], scores: [] };
-                        if (a.date) grouped[a.department].dates.push(new Date(a.date));
-                        if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
-                      });
-                      return Object.entries(grouped)
-                        .map(([dep, d]) => {
-                          const last = d.dates.sort((a,b)=>b-a)[0];
-                          const daysAgo = last ? Math.floor((todayD-last)/(1000*60*60*24)) : null;
-                          const avg = d.scores.length ? (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(2) : "-";
-                          return { dep, daysAgo, avg };
-                        })
-                        .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
-                        .map(r => (
-                          <tr key={r.dep} style={{ borderBottom: "1px solid #ddd" }}>
-                            <td style={styles.tableCell}>{r.dep}</td>
-                            <td style={styles.tableCell}><span style={{ background: getDaysColor(r.daysAgo), padding: "2px 8px", borderRadius: "10px", fontWeight: "bold", color: "#333", display: "inline-block", minWidth: "25px", textAlign: "center" }}>{r.daysAgo ?? "—"}</span></td>
-                            <td style={{ ...styles.tableCell, fontWeight: "bold", color: "#1e3c72" }}>{r.avg}</td>
-                          </tr>
-                        ));
-                    })()}
+                      const last = d.dates.sort((a,b)=>b-a)[0];
+                      const daysAgo = last ? Math.floor((todayD-last)/(1000*60*60*24)) : null;
+                      const avg = d.scores.length ? (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(2) : "-";
+                      return { dep, daysAgo, avg };
+                    }).sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1)).map(r => (
+                      <tr key={r.dep} style={{ borderBottom: "1px solid #ddd" }}>
+                        <td style={styles.tableCell}>{r.dep}</td>
+                        <td style={styles.tableCell}><span style={{ background: getDaysColor(r.daysAgo), padding: "2px 8px", borderRadius: "10px", fontWeight: "bold", color: "#333", display: "inline-block", minWidth: "25px", textAlign: "center" }}>{r.daysAgo ?? "—"}</span></td>
+                        <td style={{ ...styles.tableCell, fontWeight: "bold", color: "#1e3c72" }}>{r.avg}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -203,7 +210,6 @@ export default function Home() {
                     <div style={styles.commentBox}>{audit.comment || <i style={{ opacity: 0.5 }}>Brak komentarza</i>}</div>
                   </div>
                 ))}
-                {!selectedDepartment && <p style={{ textAlign: "center", opacity: 0.5, marginTop: "20px" }}>Wybierz dział, aby zobaczyć historię</p>}
               </div>
             </div>
           </div>
@@ -214,15 +220,17 @@ export default function Home() {
 }
 
 const styles = {
-  page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"},
+  page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"20px 40px",color:"#fff", display: "flex", flexDirection: "column", alignItems: "center"},
+  navBar: {display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", maxWidth: "1200px", marginBottom: "30px"},
+  tabsWrapper: {display: "flex", gap: "20px", flex: 1, justifyContent: "center"},
   logoContainer: { display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px' },
-  millIcon: { width: '240px', height: '240px', filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.3))' },
-  mainTitle: { color: 'white', marginTop: '10px', fontSize: '36px', fontWeight: '900', letterSpacing: '5px', textShadow: '3px 3px 15px rgba(0,0,0,0.6)' },
-  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "24px", width: "100%", maxWidth: "440px", boxShadow: "0 25px 60px rgba(0,0,0,0.6)"},
+  millIcon: { width: '200px', height: '200px', filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.3))' },
+  mainTitle: { color: 'white', marginTop: '10px', fontSize: '36px', fontWeight: '900', letterSpacing: '5px' },
+  loginCard: {background: "#fff", color: "#333", padding: "40px", borderRadius: "24px", width: "100%", maxWidth: "400px", marginTop: "20px"},
   label: {display: "block", marginBottom: "8px", fontWeight: "bold", color: "#1e3c72"},
-  tabs:{display:"flex",justifyContent:"space-between",width:"100%",maxWidth:"900px",margin:"0 auto 30px"},
-  tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff", cursor:"pointer"},
-  activeTab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"#fff",color:"#1e3c72",fontWeight:"bold", cursor:"pointer"},
+  tab:{width:"250px",height:"56px",fontSize:"16px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff", cursor:"pointer"},
+  activeTab:{width:"250px",height:"56px",fontSize:"16px",borderRadius:"14px",border:"none",background:"#fff",color:"#1e3c72",fontWeight:"bold", cursor:"pointer"},
+  logoutBtn: {background: "#ff4d4d", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "10px", fontWeight: "bold", cursor: "pointer", fontSize: "14px"},
   content:{width: "100%"},
   card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px", maxWidth: "800px", margin: "0 auto"},
   title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
@@ -231,13 +239,13 @@ const styles = {
   submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff", cursor: "pointer", fontWeight: "bold"},
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
-  dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
-  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333", display: "flex", flexDirection: "column"},
-  centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px"},
+  dashboard:{display:"grid",gridTemplateColumns:"400px 1fr 400px",gap:"30px",maxWidth:"1800px",margin:"0 auto"},
+  sideCard:{background:"#fff",borderRadius:"18px",padding:"20px",height:"800px",color:"#333", display: "flex", flexDirection: "column"},
+  centerCard:{background:"#fff",borderRadius:"18px",padding:"20px",height:"800px"},
   sideTitle:{color:"#1e3c72",marginBottom:"16px",fontWeight:"bold"},
   scrollArea: {flex: 1, overflowY: "auto", paddingRight: "10px"},
   historyItem: {marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px"},
-  commentBox:{marginTop:"4px",padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4",fontSize:"14px",wordBreak:"break-word",whiteSpace:"pre-wrap"},
-  tableHeader: { padding: "12px 5px", textAlign: "center", borderRight: "1px solid #ddd" },
+  commentBox:{marginTop:"4px",padding:"10px",borderRadius:"10px",background:"#f5f7fb",fontSize:"13px",wordBreak:"break-word",whiteSpace:"pre-wrap"},
+  tableHeader: { padding: "10px 5px", textAlign: "center", borderRight: "1px solid #ddd" },
   tableCell: { padding: "10px 5px", textAlign: "center", borderRight: "1px solid #ddd" }
 };
