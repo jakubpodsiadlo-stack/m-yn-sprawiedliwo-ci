@@ -10,17 +10,38 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 // ===== KOLOR WG ŚREDNIEJ =====
 const getColorByAvg = (avg) => {
-  if (avg <= 1) return "#1b5e20";   // mocno zielony
-  if (avg <= 2) return "#66bb6a";   // jasnozielony
-  if (avg <= 3) return "#fbc02d";   // złoty
-  if (avg <= 4) return "#ef5350";   // jasnoczerwony
-  return "#b71c1c";                 // czerwony
+  if (avg <= 1) return "#1b5e20";
+  if (avg <= 2) return "#66bb6a";
+  if (avg <= 3) return "#fbc02d";
+  if (avg <= 4) return "#ef5350";
+  return "#b71c1c";
+};
+
+// ===== TEKST PO ŁUKU =====
+const drawTextAlongArc = (ctx, text, x, y, radius, angle) => {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  const chars = text.split("");
+  const spacing = 0.12; // im mniejsze tym ciaśniej
+
+  ctx.rotate(-((chars.length - 1) * spacing) / 2);
+
+  chars.forEach(char => {
+    ctx.save();
+    ctx.translate(0, -radius);
+    ctx.fillText(char, 0, 0);
+    ctx.restore();
+    ctx.rotate(spacing);
+  });
+
+  ctx.restore();
 };
 
 export default function PieChart({ audits }) {
   const grouped = {};
 
-  // ===== GRUPOWANIE =====
   audits.forEach(a => {
     if (!grouped[a.department]) {
       grouped[a.department] = {
@@ -32,18 +53,13 @@ export default function PieChart({ audits }) {
 
     grouped[a.department].count += 1;
 
-    if (a.date) {
-      grouped[a.department].dates.push(new Date(a.date));
-    }
-
-    if (typeof a.score === "number" && !isNaN(a.score)) {
+    if (a.date) grouped[a.department].dates.push(new Date(a.date));
+    if (typeof a.score === "number" && !isNaN(a.score))
       grouped[a.department].scores.push(a.score);
-    }
   });
 
   const labels = Object.keys(grouped);
 
-  // ===== METRYKI =====
   const metrics = labels.map(dep => {
     const dates = grouped[dep].dates.sort((a, b) => b - a);
     const scores = grouped[dep].scores;
@@ -59,26 +75,23 @@ export default function PieChart({ audits }) {
       lastDate: dates.length
         ? dates[0].toISOString().split("T")[0]
         : "brak daty",
-      avg,
       color: getColorByAvg(avg)
     };
   });
 
-  // ===== DATA =====
   const data = {
     labels,
     datasets: [
       {
         data: metrics.map(m => m.count),
         backgroundColor: metrics.map(m => m.color),
-        borderColor: "#ffffff",
+        borderColor: "#fff",
         borderWidth: 2,
-        hoverOffset: 16
+        hoverOffset: 12
       }
     ]
   };
 
-  // ===== TEKST NA SEGMENTACH =====
   const segmentTextPlugin = {
     id: "segmentText",
     afterDraw(chart) {
@@ -86,50 +99,51 @@ export default function PieChart({ audits }) {
       const meta = chart.getDatasetMeta(0);
 
       ctx.save();
+      ctx.fillStyle = "#fff";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       meta.data.forEach((arc, i) => {
         const angle = (arc.startAngle + arc.endAngle) / 2;
+        const centerX = arc.x;
+        const centerY = arc.y;
 
-        // 🚀 JESZCZE WIĘKSZY PROMIEŃ
-        const radius = arc.outerRadius * 0.90;
+        // ===== NAZWA DZIAŁU PO ŁUKU =====
+        ctx.font = "bold 14px sans-serif";
+        drawTextAlongArc(
+          ctx,
+          metrics[i].name,
+          centerX,
+          centerY,
+          arc.outerRadius * 0.95,
+          angle
+        );
 
-        const x = arc.x + Math.cos(angle) * radius;
-        const y = arc.y + Math.sin(angle) * radius;
+        // ===== INFO POD ŁUKIEM =====
+        const infoRadius = arc.outerRadius * 0.65;
+        const x = centerX + Math.cos(angle) * infoRadius;
+        const y = centerY + Math.sin(angle) * infoRadius;
 
-        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px sans-serif";
+        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y - 10);
 
-        ctx.font = "bold 16px sans-serif";
-        ctx.fillText(metrics[i].name, x, y - 22);
-
-        ctx.font = "bold 13px sans-serif";
-        ctx.fillText(`Audytów: ${metrics[i].count}`, x, y);
-
-        ctx.font = "13px sans-serif";
-        ctx.fillText(metrics[i].lastDate, x, y + 22);
+        ctx.font = "12px sans-serif";
+        ctx.fillText(metrics[i].lastDate, x, y + 10);
       });
 
       ctx.restore();
     }
   };
 
-  // ===== OPCJE =====
   const options = {
     cutout: 0,
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
-    layout: {
-      padding: 0 // 🔥 ZERO marginesów
-    },
+    layout: { padding: 0 },
     plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        enabled: true
-      }
+      legend: { display: false },
+      tooltip: { enabled: true }
     }
   };
 
