@@ -16,7 +16,9 @@ export default function Home() {
     setAudits(await res.json());
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const submit = async () => {
     await fetch("/api/audits", {
@@ -24,13 +26,21 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form)
     });
-    setForm({ department: "Produkcja", date: "", score: 5, comment: "" });
+
+    setForm({
+      department: "Produkcja",
+      date: "",
+      score: 5,
+      comment: ""
+    });
+
     load();
     setTab("chart");
   };
 
   return (
     <div style={styles.page}>
+      {/* ZAKŁADKI */}
       <div style={styles.tabs}>
         <button
           onClick={() => setTab("form")}
@@ -38,6 +48,7 @@ export default function Home() {
         >
           📝 WPROWADŹ AUDYT
         </button>
+
         <button
           onClick={() => setTab("chart")}
           style={tab === "chart" ? styles.activeTab : styles.tab}
@@ -46,14 +57,18 @@ export default function Home() {
         </button>
       </div>
 
+      {/* ZAWARTOŚĆ */}
       <div style={styles.content}>
+        {/* FORMULARZ */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2>Nowy audyt</h2>
 
             <select
               value={form.department}
-              onChange={e => setForm({ ...form, department: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, department: e.target.value })
+              }
               style={styles.input}
             >
               <option>Produkcja</option>
@@ -70,20 +85,38 @@ export default function Home() {
               style={styles.input}
             />
 
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={form.score}
-              onChange={e => setForm({ ...form, score: +e.target.value })}
-              style={styles.input}
-            />
+            {/* SKALA 1–10 */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ marginBottom: "8px", fontWeight: "bold" }}>
+                Ocena: {form.score}
+              </p>
+
+              <div style={styles.scoreRow}>
+                {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                  <div
+                    key={n}
+                    onClick={() => setForm({ ...form, score: n })}
+                    style={{
+                      ...styles.scoreBox,
+                      background:
+                        form.score === n ? "#1e3c72" : "#e0e0e0",
+                      color:
+                        form.score === n ? "#fff" : "#333"
+                    }}
+                  >
+                    {n}
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <textarea
               placeholder="Komentarz"
               value={form.comment}
-              onChange={e => setForm({ ...form, comment: e.target.value })}
-              style={{ ...styles.input, height: "80px" }}
+              onChange={e =>
+                setForm({ ...form, comment: e.target.value })
+              }
+              style={{ ...styles.input, height: "90px" }}
             />
 
             <button onClick={submit} style={styles.submit}>
@@ -92,6 +125,7 @@ export default function Home() {
           </div>
         )}
 
+        {/* WIZUALIZACJA */}
         {tab === "chart" && (
           <div style={styles.card}>
             {audits.length > 0 ? (
@@ -105,6 +139,8 @@ export default function Home() {
     </div>
   );
 }
+
+/* ================= STYLES ================= */
 
 const styles = {
   page: {
@@ -123,17 +159,17 @@ const styles = {
     width: "48%",
     padding: "20px",
     fontSize: "18px",
-    borderRadius: "12px",
+    borderRadius: "14px",
     border: "none",
     cursor: "pointer",
-    background: "rgba(255,255,255,0.2)",
+    background: "rgba(255,255,255,0.25)",
     color: "#fff"
   },
   activeTab: {
     width: "48%",
     padding: "20px",
     fontSize: "18px",
-    borderRadius: "12px",
+    borderRadius: "14px",
     border: "none",
     cursor: "pointer",
     background: "#ffffff",
@@ -147,7 +183,7 @@ const styles = {
   card: {
     background: "#ffffff",
     color: "#333",
-    borderRadius: "16px",
+    borderRadius: "18px",
     padding: "30px"
   },
   input: {
@@ -160,11 +196,24 @@ const styles = {
   submit: {
     width: "100%",
     padding: "14px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     border: "none",
     background: "#1e3c72",
     color: "#fff",
     fontSize: "16px",
     cursor: "pointer"
+  },
+  scoreRow: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  scoreBox: {
+    width: "8%",
+    padding: "10px 0",
+    textAlign: "center",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    userSelect: "none"
   }
 };
