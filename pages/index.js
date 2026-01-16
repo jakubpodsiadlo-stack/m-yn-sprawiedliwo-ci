@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import VisualizationDashboard from "../components/VisualizationDashboard";
+import PieChart from "../components/PieChart";
 
 export default function Home() {
   const [tab, setTab] = useState("form");
@@ -59,9 +59,9 @@ export default function Home() {
         </button>
       </div>
 
-      {/* ===== ZAWARTOŚĆ ===== */}
+      {/* ===== CONTENT ===== */}
       <div style={styles.content}>
-        {/* ===== FORMULARZ ===== */}
+        {/* ===== FORM ===== */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -133,7 +133,9 @@ export default function Home() {
         {tab === "chart" && (
           <div style={styles.card}>
             {audits.length > 0 ? (
-              <VisualizationDashboard audits={audits} />
+              <div style={{ maxWidth: "520px", margin: "0 auto" }}>
+                <PieChart audits={audits} />
+              </div>
             ) : (
               <p>Brak danych do wizualizacji</p>
             )}
@@ -156,7 +158,7 @@ const styles = {
   tabs: {
     display: "flex",
     justifyContent: "space-between",
-    maxWidth: "1000px",
+    maxWidth: "900px",
     margin: "0 auto 30px"
   },
   tab: {
@@ -181,14 +183,14 @@ const styles = {
     fontWeight: "bold"
   },
   content: {
-    maxWidth: "1200px",
+    maxWidth: "900px",
     margin: "0 auto"
   },
   card: {
     background: "#ffffff",
     color: "#333",
     borderRadius: "18px",
-    padding: "25px"
+    padding: "30px"
   },
   title: {
     textAlign: "center",
