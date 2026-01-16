@@ -66,7 +66,7 @@ export default function Home() {
 
       {/* CONTENT */}
       <div style={styles.content}>
-        {/* FORM */}
+        {/* FORM - PRZYWRÓCONY DO ORYGINAŁU */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -115,72 +115,69 @@ export default function Home() {
           </div>
         )}
 
-        {/* DASHBOARD */}
+        {/* DASHBOARD - Z KOLOROWĄ TABELĄ */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
             {/* LEWA TABELA */}
             <div style={styles.sideCard}>
               <h3 style={styles.sideTitle}>Działy</h3>
-              <div style={{ overflowY: "auto", height: "calc(100% - 40px)" }}>
-                <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ opacity: 0.6, borderBottom: "1px solid #eee" }}>
-                      <th align="left" style={{ paddingBottom: "10px" }}>Dział</th>
-                      <th align="right" style={{ paddingBottom: "10px" }}>Dni</th>
-                      <th align="right" style={{ paddingBottom: "10px" }}>Śr.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const todayD = new Date();
-                      const grouped = {};
+              <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ opacity: 0.6 }}>
+                    <th align="left">Dział</th>
+                    <th align="right">Dni</th>
+                    <th align="right">Śr.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const todayD = new Date();
+                    const grouped = {};
 
-                      audits.forEach(a => {
-                        if (!grouped[a.department]) grouped[a.department] = { dates: [], scores: [] };
-                        if (a.date) grouped[a.department].dates.push(new Date(a.date));
-                        if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
-                      });
+                    audits.forEach(a => {
+                      if (!grouped[a.department]) grouped[a.department] = { dates: [], scores: [] };
+                      if (a.date) grouped[a.department].dates.push(new Date(a.date));
+                      if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
+                    });
 
-                      const getColor = (days) => {
-                        if (days === null) return "transparent";
-                        if (days > 14) return "#ffcccc"; // Czerwony
-                        if (days >= 5) return "#fff3cd"; // Żółty
-                        return "#d4edda";              // Zielony
-                      };
+                    const getColor = (days) => {
+                      if (days === null) return "transparent";
+                      if (days > 14) return "#ffcccc"; // Czerwony
+                      if (days >= 5) return "#fff3cd"; // Żółty
+                      return "#d4edda";              // Zielony
+                    };
 
-                      return Object.entries(grouped)
-                        .map(([dep, d]) => {
-                          const last = d.dates.sort((a,b)=>b-a)[0];
-                          const daysAgo = last ? Math.floor((todayD-last)/(1000*60*60*24)) : null;
-                          const avg = d.scores.length ? (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(2) : "-";
-                          return { dep, daysAgo, avg };
-                        })
-                        .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
-                        .map(r => (
-                          <tr key={r.dep} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                            <td style={{ padding: "10px 0", color: "#444" }}>{r.dep}</td>
-                            <td align="right" style={{ padding: "10px 0" }}>
-                              <span style={{
-                                background: getColor(r.daysAgo),
-                                padding: "4px 10px",
-                                borderRadius: "20px",
-                                fontWeight: "bold",
-                                fontSize: "12px",
-                                color: "#333",
-                                display: "inline-block",
-                                minWidth: "25px",
-                                textAlign: "center"
-                              }}>
-                                {r.daysAgo ?? "—"}
-                              </span>
-                            </td>
-                            <td align="right" style={{ padding: "10px 0", fontWeight: "bold", color: "#1e3c72" }}>{r.avg}</td>
-                          </tr>
-                        ));
-                    })()}
-                  </tbody>
-                </table>
-              </div>
+                    return Object.entries(grouped)
+                      .map(([dep, d]) => {
+                        const last = d.dates.sort((a,b)=>b-a)[0];
+                        const daysAgo = last ? Math.floor((todayD-last)/(1000*60*60*24)) : null;
+                        const avg = d.scores.length ? (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(2) : "-";
+                        return { dep, daysAgo, avg };
+                      })
+                      .sort((a,b)=>(b.daysAgo??-1)-(a.daysAgo??-1))
+                      .map(r => (
+                        <tr key={r.dep} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                          <td style={{ padding: "8px 0" }}>{r.dep}</td>
+                          <td align="right" style={{ padding: "8px 0" }}>
+                            <span style={{
+                              background: getColor(r.daysAgo),
+                              padding: "2px 8px",
+                              borderRadius: "10px",
+                              fontWeight: "bold",
+                              color: "#333",
+                              display: "inline-block",
+                              minWidth: "25px",
+                              textAlign: "center"
+                            }}>
+                              {r.daysAgo ?? "—"}
+                            </span>
+                          </td>
+                          <td align="right" style={{ padding: "8px 0", fontWeight: "bold" }}>{r.avg}</td>
+                        </tr>
+                      ));
+                  })()}
+                </tbody>
+              </table>
             </div>
 
             {/* ŚRODEK – KOŁO */}
@@ -229,7 +226,7 @@ export default function Home() {
   );
 }
 
-/* ===== STYLES ===== */
+/* ===== STYLES - POWRÓT DO ORYGINALNEGO UKŁADU ===== */
 
 const styles = {
   page:{minHeight:"100vh",background:"linear-gradient(135deg,#1e3c72,#2a5298)",padding:"40px",color:"#fff"},
@@ -237,16 +234,16 @@ const styles = {
   tab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"rgba(255,255,255,0.25)",color:"#fff"},
   activeTab:{width:"48%",height:"56px",fontSize:"18px",borderRadius:"14px",border:"none",background:"#fff",color:"#1e3c72",fontWeight:"bold"},
   content:{margin:"0 auto"},
-  card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px",maxWidth:"600px",margin:"0 auto"},
+  card:{background:"#fff",color:"#333",borderRadius:"18px",padding:"30px"},
   title:{textAlign:"center",marginBottom:"24px",color:"#1e3c72"},
   input:{width:"100%",height:"52px",padding:"0 14px",marginBottom:"16px",borderRadius:"10px",border:"1px solid #ccc"},
   textarea:{width:"100%",height:"110px",padding:"14px",marginBottom:"20px",borderRadius:"10px",border:"1px solid #ccc"},
-  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff",cursor:"pointer"},
+  submit:{width:"100%",height:"56px",borderRadius:"14px",border:"none",background:"#1e3c72",color:"#fff"},
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
   dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
-  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333",boxShadow:"0 10px 25px rgba(0,0,0,0.1)"},
-  centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",boxShadow:"0 10px 25px rgba(0,0,0,0.1)"},
-  sideTitle:{color:"#1e3c72",marginBottom:"16px",borderBottom:"2px solid #f0f0f0",paddingBottom:"8px"},
+  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333"},
+  centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px"},
+  sideTitle:{color:"#1e3c72",marginBottom:"16px"},
   commentBox:{marginTop:"12px",padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4"}
 };
