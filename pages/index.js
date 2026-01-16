@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PieChart from "../components/PieChart";
 
-// ===== DZISIEJSZA DATA (YYYY-MM-DD) =====
+// ===== DZISIEJSZA DATA =====
 const today = () => new Date().toISOString().split("T")[0];
 
 const DEPARTMENTS = [
@@ -39,7 +39,7 @@ export default function Home() {
   const [audits, setAudits] = useState([]);
   const [form, setForm] = useState({
     department: DEPARTMENTS[0],
-    date: today(),          // 👈 DOMYŚLNIE DZIŚ
+    date: today(),
     score: 3,
     comment: ""
   });
@@ -64,7 +64,7 @@ export default function Home() {
 
     setForm({
       department: DEPARTMENTS[0],
-      date: today(),        // 👈 PO ZAPISIE ZNOWU DZIŚ
+      date: today(),
       score: 3,
       comment: ""
     });
@@ -94,7 +94,6 @@ export default function Home() {
 
       {/* ===== CONTENT ===== */}
       <div style={styles.content}>
-        {/* ===== FORM ===== */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -120,12 +119,12 @@ export default function Home() {
               style={styles.input}
             />
 
-            {/* ===== POZIOM NIEZADOWOLENIA 1–5 ===== */}
+            {/* ===== POZIOM NIEZADOWOLENIA ===== */}
             <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontWeight: "bold" }}>
+              <p style={{ fontWeight: "bold", marginBottom: "4px" }}>
                 Poziom niezadowolenia: {form.score}
               </p>
-              <p style={{ fontSize: "12px", opacity: 0.6 }}>
+              <p style={{ fontSize: "12px", opacity: 0.6, marginBottom: "10px" }}>
                 1 = bardzo dobrze · 5 = bardzo źle
               </p>
 
@@ -154,7 +153,7 @@ export default function Home() {
               onChange={e =>
                 setForm({ ...form, comment: e.target.value })
               }
-              style={{ ...styles.input, height: "90px" }}
+              style={styles.textarea}
             />
 
             <button onClick={submit} style={styles.submit}>
@@ -163,7 +162,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* ===== WIZUALIZACJA ===== */}
         {tab === "chart" && (
           <div style={styles.card}>
             {audits.length > 0 ? (
@@ -197,7 +195,7 @@ const styles = {
   },
   tab: {
     width: "48%",
-    padding: "20px",
+    height: "56px",
     fontSize: "18px",
     borderRadius: "14px",
     border: "none",
@@ -207,7 +205,7 @@ const styles = {
   },
   activeTab: {
     width: "48%",
-    padding: "20px",
+    height: "56px",
     fontSize: "18px",
     borderRadius: "14px",
     border: "none",
@@ -234,14 +232,27 @@ const styles = {
   },
   input: {
     width: "100%",
+    height: "48px",
+    padding: "0 12px",
+    marginBottom: "15px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    lineHeight: "48px",
+    boxSizing: "border-box"
+  },
+  textarea: {
+    width: "100%",
+    height: "90px",
     padding: "12px",
     marginBottom: "15px",
     borderRadius: "8px",
-    border: "1px solid #ccc"
+    border: "1px solid #ccc",
+    boxSizing: "border-box",
+    resize: "none"
   },
   submit: {
     width: "100%",
-    padding: "14px",
+    height: "52px",
     borderRadius: "12px",
     border: "none",
     background: "#1e3c72",
@@ -255,11 +266,14 @@ const styles = {
   },
   scoreBox: {
     width: "18%",
-    padding: "12px 0",
-    textAlign: "center",
+    height: "48px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
-    userSelect: "none"
+    userSelect: "none",
+    boxSizing: "border-box"
   }
 };
