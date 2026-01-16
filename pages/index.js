@@ -53,7 +53,6 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      {/* ZAKŁADKI */}
       <div style={styles.tabs}>
         <button onClick={() => setTab("form")} style={tab==="form"?styles.activeTab:styles.tab}>
           📝 WPROWADŹ AUDYT
@@ -64,7 +63,6 @@ export default function Home() {
       </div>
 
       <div style={styles.content}>
-        {/* FORM */}
         {tab === "form" && (
           <div style={styles.card}>
             <h2 style={styles.title}>NOWY AUDYT</h2>
@@ -102,7 +100,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* DASHBOARD */}
         {tab === "chart" && (
           <div style={styles.dashboard}>
             {/* LEWA TABELA */}
@@ -152,9 +149,9 @@ export default function Home() {
               <PieChart audits={audits} />
             </div>
 
-            {/* PRAWA STRONA */}
+            {/* PRAWA STRONA – 3 KOMENTARZE */}
             <div style={styles.sideCard}>
-              <h3 style={styles.sideTitle}>Szczegóły audytu</h3>
+              <h3 style={styles.sideTitle}>Ostatnie audyty</h3>
 
               <select style={styles.input}
                 value={selectedDepartment}
@@ -168,23 +165,29 @@ export default function Home() {
               {selectedDepartment && (() => {
                 const list = audits
                   .filter(a=>a.department===selectedDepartment)
-                  .sort((a,b)=>new Date(b.date)-new Date(a.date));
+                  .sort((a,b)=>new Date(b.date)-new Date(a.date))
+                  .slice(0,3);
+
                 if(!list.length) return <p>Brak danych</p>;
-                const last=list[0];
-                return (
-                  <>
-                    <p><b>Data:</b> {last.date}</p>
-                    <div style={{
-                      ...styles.scoreBadge,
-                      background: scoreColor(last.score)
-                    }}>
-                      {last.score}
+
+                return list.map((a,i)=>(
+                  <div key={i} style={styles.commentItem}>
+                    <div style={styles.commentHeader}>
+                      <span>{a.date}</span>
+                      <span
+                        style={{
+                          ...styles.scoreBadge,
+                          background: scoreColor(a.score)
+                        }}
+                      >
+                        {a.score}
+                      </span>
                     </div>
                     <div style={styles.commentBox}>
-                      {last.comment || "Brak komentarza"}
+                      {a.comment || "Brak komentarza"}
                     </div>
-                  </>
-                );
+                  </div>
+                ));
               })()}
             </div>
           </div>
@@ -209,10 +212,12 @@ const styles = {
   scoreRow:{display:"flex",justifyContent:"space-between",margin:"10px 0"},
   scoreBox:{width:"18%",height:"52px",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"10px",cursor:"pointer",fontWeight:"bold"},
   dashboard:{display:"grid",gridTemplateColumns:"440px 1fr 440px",gap:"40px",maxWidth:"1900px",margin:"0 auto"},
-  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333"},
+  sideCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px",color:"#333",overflowY:"auto"},
   centerCard:{background:"#fff",borderRadius:"18px",padding:"24px",height:"820px"},
   sideTitle:{color:"#1e3c72",marginBottom:"16px"},
   leftTable:{width:"100%",borderCollapse:"collapse",fontSize:"15px"},
-  scoreBadge:{width:"64px",height:"64px",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",fontWeight:"bold",color:"#fff",margin:"12px 0"},
-  commentBox:{marginTop:"8px",padding:"14px",borderRadius:"12px",background:"#f5f7fb",lineHeight:"1.4"}
+  commentItem:{marginBottom:"16px"},
+  commentHeader:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px",fontSize:"13px"},
+  scoreBadge:{minWidth:"40px",height:"40px",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px",fontWeight:"bold",color:"#fff"},
+  commentBox:{padding:"12px",borderRadius:"10px",background:"#f5f7fb",lineHeight:"1.4",fontSize:"14px"}
 };
