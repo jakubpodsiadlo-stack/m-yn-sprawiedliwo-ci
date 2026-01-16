@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PieChart from "../components/PieChart";
 
-const today = () => new Date().toISOString().split("T")[0];
+const todayStr = () => new Date().toISOString().split("T")[0];
+const todayDate = new Date();
 
 const DEPARTMENTS = [
   "CC",
@@ -18,7 +19,7 @@ const DEPARTMENTS = [
   "PH JAKUB HARASIMOWICZ",
   "PRĄD DLA BIZNESU",
   "SZKOLENIA",
-  "ADMINISTRACJA",
+  "ADMINISTRATOR",
   "KONTROLA JAKOŚCI CC",
   "KONTROLA JAKOŚCI PH",
   "MAGAZYNY",
@@ -38,7 +39,7 @@ export default function Home() {
   const [audits, setAudits] = useState([]);
   const [form, setForm] = useState({
     department: DEPARTMENTS[0],
-    date: today(),
+    date: todayStr(),
     score: 3,
     comment: ""
   });
@@ -63,13 +64,52 @@ export default function Home() {
 
     setForm({
       department: DEPARTMENTS[0],
-      date: today(),
+      date: todayStr(),
       score: 3,
       comment: ""
     });
 
     load();
   };
+
+  // ===== TABELA: DNI OD OSTATNIEGO AUDYTU + ŚREDNIA =====
+  const tableData = useMemo(() => {
+    const grouped = {};
+
+    audits.forEach(a => {
+      if (!grouped[a.department]) {
+        grouped[a.department] = {
+          dates: [],
+          scores: []
+        };
+      }
+      if (a.date) grouped[a.department].dates.push(new Date(a.date));
+      if (typeof a.score === "number") grouped[a.department].scores.push(a.score);
+    });
+
+    return Object.entries(grouped)
+      .map(([department, data]) => {
+        const lastDate = data.dates.sort((a, b) => b - a)[0];
+        const daysAgo = lastDate
+          ? Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24))
+          : null;
+
+        const avg =
+          data.scores.length > 0
+            ? (
+                data.scores.reduce((a, b) => a + b, 0) /
+                data.scores.length
+              ).toFixed(2)
+            : "-";
+
+        return {
+          department,
+          daysAgo,
+          avg
+        };
+      })
+      .sort((a, b) => (b.daysAgo ?? -1) - (a.daysAgo ?? -1));
+  }, [audits]);
 
   return (
     <div style={styles.page}>
@@ -117,13 +157,9 @@ export default function Home() {
             />
 
             <div style={{ marginBottom: "24px" }}>
-              <p style={{ fontWeight: "bold", marginBottom: "4px" }}>
+              <p style={{ fontWeight: "bold" }}>
                 Poziom niezadowolenia: {form.score}
               </p>
-              <p style={{ fontSize: "12px", opacity: 0.6 }}>
-                1 = bardzo dobrze · 5 = bardzo źle
-              </p>
-
               <div style={styles.scoreRow}>
                 {[1, 2, 3, 4, 5].map(n => (
                   <div
@@ -158,20 +194,40 @@ export default function Home() {
           </div>
         )}
 
-        {/* ===== WIZUALIZACJA (PROSTOKĄT) ===== */}
+        {/* ===== WIZUALIZACJA ===== */}
         {tab === "chart" && (
-          <div
-            style={{
-              background: "#ffffff",
-              color: "#333",
-              borderRadius: "18px",
-              padding: "20px",
-              width: "800px",   
-              height: "800px",   // ⬅ ZMIENIASZ WYSOKOŚĆ
-              margin: "0 auto"
-            }}
-          >
-            <PieChart audits={audits} />
+          <div style={styles.dashboard}>
+            {/* ===== TABELA ===== */}
+            <div style={styles.tableBox}>
+              <h3 style={styles.tableTitle}>Działy – dni od audytu</h3>
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Dział</th>
+                    <th>Dni od audytu</th>
+                    <th>Śr. ocena</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableData.map(row => (
+                    <tr key={row.department}>
+                      <td>{row.department}</td>
+                      <td>
+                        {row.daysAgo !== null
+                          ? `${row.daysAgo} dni`
+                          : "brak"}
+                      </td>
+                      <td>{row.avg}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ===== KOŁO ===== */}
+            <div style={styles.chartBox}>
+              <PieChart audits={audits} />
+            </div>
           </div>
         )}
       </div>
@@ -216,7 +272,7 @@ const styles = {
     cursor: "pointer"
   },
   content: {
-    maxWidth: "1400px",
+    maxWidth: "1600px",
     margin: "0 auto"
   },
   card: {
@@ -225,21 +281,43 @@ const styles = {
     borderRadius: "18px",
     padding: "30px"
   },
-  title: {
-    textAlign: "center",
-    marginBottom: "24px",
-    color: "#1e3c72",
-    letterSpacing: "2px"
+
+  /* ===== DASHBOARD ===== */
+  dashboard: {
+    display: "flex",
+    gap: "24px",
+    background: "#fff",
+    borderRadius: "18px",
+    padding: "20px",
+    color: "#333"
   },
+
+  tableBox: {
+    width: "420px",
+    overflowY: "auto"
+  },
+  tableTitle: {
+    marginBottom: "12px",
+    color: "#1e3c72"
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: "14px"
+  },
+
+  chartBox: {
+    flex: 1,
+    height: "800px"
+  },
+
   input: {
     width: "100%",
     height: "52px",
     padding: "0 14px",
     marginBottom: "16px",
     borderRadius: "10px",
-    border: "1px solid #ccc",
-    fontSize: "15px",
-    boxSizing: "border-box"
+    border: "1px solid #ccc"
   },
   textarea: {
     width: "100%",
@@ -248,9 +326,7 @@ const styles = {
     marginBottom: "20px",
     borderRadius: "10px",
     border: "1px solid #ccc",
-    fontSize: "15px",
-    resize: "none",
-    boxSizing: "border-box"
+    resize: "none"
   },
   submit: {
     width: "100%",
@@ -264,8 +340,7 @@ const styles = {
   },
   scoreRow: {
     display: "flex",
-    justifyContent: "space-between",
-    marginTop: "10px"
+    justifyContent: "space-between"
   },
   scoreBox: {
     width: "18%",
@@ -275,7 +350,6 @@ const styles = {
     justifyContent: "center",
     borderRadius: "10px",
     cursor: "pointer",
-    fontWeight: "bold",
-    userSelect: "none"
+    fontWeight: "bold"
   }
 };
