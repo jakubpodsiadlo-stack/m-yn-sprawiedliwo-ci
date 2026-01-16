@@ -3,6 +3,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+// KOLORY DZIAŁÓW
 const COLORS = {
   Produkcja: "#1e3c72",
   HR: "#2e7d32",
@@ -12,15 +13,11 @@ const COLORS = {
 };
 
 export default function PieChart({ audits }) {
-  // grupowanie danych per dział
+  // === GRUPOWANIE DANYCH ===
   const grouped = {};
-
   audits.forEach(a => {
     if (!grouped[a.department]) {
-      grouped[a.department] = {
-        scores: [],
-        dates: []
-      };
+      grouped[a.department] = { scores: [], dates: [] };
     }
     grouped[a.department].scores.push(a.score);
     grouped[a.department].dates.push(new Date(a.date));
@@ -30,66 +27,81 @@ export default function PieChart({ audits }) {
   const values = labels.map(l => grouped[l].scores.length);
   const colors = labels.map(l => COLORS[l] || "#999");
 
+  // === METRYKI PER DZIAŁ ===
+  const metrics = labels.map(dep => {
+    const scores = grouped[dep].scores;
+    const avg =
+      scores.reduce((a, b) => a + b, 0) / scores.length;
+
+    const lastDate = grouped[dep].dates
+      .sort((a, b) => b - a)[0]
+      .toISOString()
+      .split("T")[0];
+
+    return {
+      avg: avg.toFixed(1),
+      date: lastDate
+    };
+  });
+
+  // === WYKRES ===
   const data = {
     labels,
     datasets: [
       {
         data: values,
         backgroundColor: colors,
-        borderColor: "#ffffff",
+        borderColor: "#fff",
         borderWidth: 2
       }
     ]
   };
 
+  // === PLUGIN RYSUJĄCY TEKST NA SEGMENTACH ===
+  const segmentTextPlugin = {
+    id: "segmentText",
+    afterDraw(chart) {
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+
+      ctx.save();
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      meta.data.forEach((arc, i) => {
+        const angle =
+          (arc.startAngle + arc.endAngle) / 2;
+
+        const radius =
+          (arc.outerRadius + arc.innerRadius) / 2;
+
+        const x =
+          arc.x + Math.cos(angle) * radius;
+        const y =
+          arc.y + Math.sin(angle) * radius;
+
+        ctx.fillText(`Śr: ${metrics[i].avg}`, x, y - 7);
+        ctx.fillText(metrics[i].date, x, y + 7);
+      });
+
+      ctx.restore();
+    }
+  };
+
   const options = {
-    cutout: "65%",
+    cutout: "60%",
     plugins: {
-      legend: {
-        display: false
-      }
+      legend: { position: "bottom" }
     }
   };
 
   return (
-    <>
-      {/* WYKRES */}
-      <Doughnut data={data} options={options} />
-
-      {/* KAFELKI PER DZIAŁ */}
-      <div style={{ marginTop: "25px" }}>
-        {labels.map(dep => {
-          const scores = grouped[dep].scores;
-          const avg =
-            scores.reduce((a, b) => a + b, 0) / scores.length;
-
-          const lastDate = grouped[dep].dates
-            .sort((a, b) => b - a)[0]
-            .toISOString()
-            .split("T")[0];
-
-          return (
-            <div
-              key={dep}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr auto auto",
-                gap: "15px",
-                alignItems: "center",
-                padding: "12px 16px",
-                marginBottom: "10px",
-                borderRadius: "12px",
-                background: "#f5f5f5",
-                borderLeft: `6px solid ${COLORS[dep]}`
-              }}
-            >
-              <strong>{dep}</strong>
-              <span>Śr.: {avg.toFixed(2)}</span>
-              <span>{lastDate}</span>
-            </div>
-          );
-        })}
-      </div>
-    </>
+    <Doughnut
+      data={data}
+      options={options}
+      plugins={[segmentTextPlugin]}
+    />
   );
 }
